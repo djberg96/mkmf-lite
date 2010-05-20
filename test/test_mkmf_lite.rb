@@ -11,6 +11,10 @@ require 'mkmf/lite'
 class TC_Mkmf_Lite < Test::Unit::TestCase
   include Mkmf::Lite
 
+  test "version information" do
+    assert_equal('0.1.0', MKMF_LITE_VERSION)
+  end
+
   test "have_header basic functionality" do
     assert_respond_to(self, :have_header)
   end

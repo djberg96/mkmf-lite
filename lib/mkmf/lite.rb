@@ -5,6 +5,9 @@ require 'ptools'
 
 module Mkmf
   module Lite
+    # The version of the mkmf-lite library
+    MKMF_LITE_VERSION = '0.1.0'
+
     @@cpp_command = Config::CONFIG['CC'] || Config::CONFIG['CPP']
     @@cpp_outfile = Config::CONFIG['CPPOUTFILE'] # -o conftest.i
     @@cpp_srcfile = 'conftest.c'
