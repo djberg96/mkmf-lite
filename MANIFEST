@@ -1,0 +1,7 @@
+* CHANGES
+* MANIFEST
+* Rakefile
+* mkmf-lite.gemspec
+* lib/mkmf/lite.rb
+* lib/mkmf/templates/have_header.erb
+* test/test_mkmf_lite.rb
