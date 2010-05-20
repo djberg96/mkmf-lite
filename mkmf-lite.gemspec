@@ -1,8 +1,8 @@
 require 'rubygems'
 
 Gem::Specification.new do |spec|
-  spec.name      = 'sys-admin'
-  spec.summary   = 'A lighter, fluffier version of mkmf'
+  spec.name      = 'mkmf-lite'
+  spec.summary   = 'A lighter version of mkmf designed for use as a library'
   spec.version   = '0.1.0'
   spec.author    = 'Daniel J. Berger'
   spec.license   = 'Artistic 2.0'
