@@ -12,7 +12,7 @@ module Mkmf
     # Check for the presence of the given +header+ file.
     #
     def have_header(header)
-      erb  = ERB.new(read_template('have_header.template'))
+      erb  = ERB.new(read_template('have_header.erb'))
       result = erb.result(binding)
       try_to_compile(result)
     end
