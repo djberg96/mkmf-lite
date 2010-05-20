@@ -1,0 +1,34 @@
+= Summary
+  A light version of mkmf designed for use within programs.
+
+= Synopsis
+  require 'mkmf/lite'
+
+  class System
+    include Mkmf::Lite
+
+    def initialize
+      @gecos = have_struct_member('struct passwd', 'pw_gecos', 'pwd.h')
+    end 
+
+    def some_method
+      if @gecos
+        # Do something
+      end
+    end
+  end
+
+= Description
+  The mkmf library that ships as part of the Ruby standard library is not
+  meant for use as an internal library. It's strictly designed for building
+  C extensions. It's huge, its methods sit in a global namespace, it contains
+  many methods you don't care about, and emits output to $stdout that cannot
+  easily be disabled.
+
+  The mkmf-lite is a module, it's small, and it's designed to be mixed into
+  classes. It contains a handful of methods that, most likely, will be used
+  in conjunction with FFI. It does not package C extensions, nor does it
+  generate a log file of any sort.
+
+= Author
+  Daniel Berger
