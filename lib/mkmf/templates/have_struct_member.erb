@@ -1,0 +1,6 @@
+<%= headers %>
+
+int main(){
+  int s = (char *)&((<%= struct_type %>*)0)-><%= struct_member %> - (char *)0;
+  return 0;
+}

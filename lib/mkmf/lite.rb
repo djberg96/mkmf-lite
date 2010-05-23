@@ -18,9 +18,9 @@ module Mkmf
     # Returns true if found, or false if not found.
     #
     def have_header(header)
-      erb  = ERB.new(read_template('have_header.erb'))
-      result = erb.result(binding)
-      try_to_compile(result)
+      erb = ERB.new(read_template('have_header.erb'))
+      code = erb.result(binding)
+      try_to_compile(code)
     end
 
     # Check for the presence of the given +function+ in the common header
@@ -29,27 +29,57 @@ module Mkmf
     # Returns true if found, or false if not found.
     #
     def have_func(function, headers = [])
+      headers = get_header_string(headers)
+
+      erb_ptr = ERB.new(read_template('have_func_pointer.erb'))
+      erb_std = ERB.new(read_template('have_func.erb'))
+
+      ptr_code = erb_ptr.result(binding)
+      std_code = erb_std.result(binding)
+
+      # Check for just the function pointer first. If that fails, then try
+      # to compile with the function declaration.
+      try_to_compile(ptr_code) || try_to_compile(std_code)
+    end
+
+    # Checks whether or not the struct of type +struct_type+ contains the
+    # +struct_member+.  If it does not, or the struct type cannot be found,
+    # then false is returned.
+    #
+    # An optional list of +headers+ may be specified, in addition to the
+    # common header files that are already searched.
+    #
+    def have_struct_member(struct_type, struct_member, headers = [])
+      headers = get_header_string(headers)
+      erb = ERB.new(read_template('have_struct_member.erb'))
+      code = erb.result(binding)
+
+      try_to_compile(code)
+    end
+
+    private
+
+    # Take an array of header file names (or convert it to an array if it's a
+    # single argument), add the COMMON_HEADERS, flatten it out and remove any
+    # duplicates.
+    #
+    # Finally, convert the result into a single string of '#include'
+    # directives, each separated by a newline.
+    #
+    # This string is then to be used at the top of the ERB templates.
+    #
+    def get_header_string(headers)
       headers = [headers] unless headers.is_a?(Array)
 
       unless Config::CONFIG['COMMON_HEADERS'].empty?
         headers += Config::CONFIG['COMMON_HEADERS']
       end
 
-      headers  = headers.flatten.uniq
-      includes = headers.map{ |h| "#include <#{h}>" }.join("\n")
+      headers = headers.flatten.uniq
+      headers = headers.map{ |h| "#include <#{h}>" }.join("\n")
 
-      erb_ptr = ERB.new(read_template('have_func_pointer.erb'))
-      erb_std = ERB.new(read_template('have_func.erb'))
-
-      pointer  = erb_ptr.result(binding)
-      standard = erb_std.result(binding)
-
-      # Check for just the function pointer first. If that fails, then try
-      # to compile with the function declaration.
-      try_to_compile(pointer) || try_to_compile(standard)
+      headers
     end
-
-    private
 
     # Create a temporary bit of C source code in the temp directory, and
     # try to compile it. If it succeeds, return true. Otherwise, return

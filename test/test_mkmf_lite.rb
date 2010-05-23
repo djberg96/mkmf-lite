@@ -11,6 +11,10 @@ require 'mkmf/lite'
 class TC_Mkmf_Lite < Test::Unit::TestCase
   include Mkmf::Lite
 
+  def self.startup
+    @@windows = Config::CONFIG['host_os'] =~ /mswin|msdos|win32|mingw|cygwin/i
+  end
+
   test "version information" do
     assert_equal('0.1.0', MKMF_LITE_VERSION)
   end
@@ -49,5 +53,30 @@ class TC_Mkmf_Lite < Test::Unit::TestCase
 
   test "have_func accepts a maximum of two arguments" do
     assert_raise(ArgumentError){ have_func('printf', 'stdio.h', 'bogus') }
+  end
+
+  test "have_struct_member basic functionality" do
+    assert_respond_to(self, :have_struct_member)
+  end
+
+  test "have_struct_member returns expected boolean value" do
+    assert_true(have_struct_member('struct passwd', 'pw_name', 'pwd.h'))
+    assert_false(have_struct_member('struct passwd', 'pw_bogus', 'pwd.h'))
+    assert_false(have_struct_member('struct passwd', 'pw_name'))
+  end
+
+  test "have_struct_member requires at least two arguments" do
+    assert_raise(ArgumentError){ have_struct_member() }
+    assert_raise(ArgumentError){ have_struct_member('struct passwd') }
+  end
+
+  test "have_struct_member accepts a maximum of three arguments" do
+    assert_raise(ArgumentError){
+      have_struct_member('struct passwd', 'pw_name', 'pwd.h', true)
+    }
+  end
+
+  def self.shutdown
+    @@windows = nil
   end
 end
