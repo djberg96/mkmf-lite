@@ -7,12 +7,10 @@
   class System
     include Mkmf::Lite
 
-    def initialize
-      @gecos = have_struct_member('struct passwd', 'pw_gecos', 'pwd.h')
-    end 
+    HAVE_PW_NAME = have_struct_member('struct passwd', 'pw_name', 'pwd.h')
 
     def some_method
-      if @gecos
+      if HAVE_PW_NAME
         # Do something
       end
     end
@@ -23,12 +21,25 @@
   meant for use as an internal library. It's strictly designed for building
   C extensions. It's huge, its methods sit in a global namespace, it contains
   many methods you don't care about, and emits output to $stdout that cannot
-  easily be disabled.
+  easily be disabled. Also, the source code is monstrous.
 
   The mkmf-lite is a module, it's small, and it's designed to be mixed into
   classes. It contains a handful of methods that, most likely, will be used
-  in conjunction with FFI. It does not package C extensions, nor does it
-  generate a log file of any sort.
+  in conjunction with FFI. Also, the source code is quite readable.
+
+  It does not package C extensions, nor generate a log file or a Makefile.
+
+== License
+  Artistic 2.0
+
+== Copyright
+  (C) 2010 Daniel J. Berger
+  All Rights Reserved
+
+== Warranty
+  This library is provided "as is" and without any express or
+  implied warranties, including, without limitation, the implied
+  warranties of merchantability and fitness for a particular purpose.
 
 = Author
   Daniel Berger
