@@ -1,0 +1,11 @@
+<%= includes %>
+
+int check_for_function(){
+  void ((*volatile p)());
+  p = (void ((*)()))<%= function %>;
+  return 0;
+}
+
+int main(){
+  return 0;
+}
