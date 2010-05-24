@@ -15,6 +15,12 @@ class TC_Mkmf_Lite < Test::Unit::TestCase
     @@windows = Config::CONFIG['host_os'] =~ /mswin|msdos|win32|mingw|cygwin/i
   end
 
+  def setup
+    @st_type   = 'struct stat'
+    @st_member = 'st_uid'
+    @st_header = 'sys/stat.h' 
+  end
+
   test "version information" do
     assert_equal('0.1.0', MKMF_LITE_VERSION)
   end
@@ -60,9 +66,9 @@ class TC_Mkmf_Lite < Test::Unit::TestCase
   end
 
   test "have_struct_member returns expected boolean value" do
-    assert_true(have_struct_member('struct passwd', 'pw_name', 'pwd.h'))
-    assert_false(have_struct_member('struct passwd', 'pw_bogus', 'pwd.h'))
-    assert_false(have_struct_member('struct passwd', 'pw_name'))
+    assert_true(have_struct_member(@st_type, @st_member, @st_header))
+    assert_false(have_struct_member(@st_type, 'pw_bogus', @st_header))
+    assert_false(have_struct_member(@st_type, @st_member))
   end
 
   test "have_struct_member requires at least two arguments" do
@@ -74,6 +80,12 @@ class TC_Mkmf_Lite < Test::Unit::TestCase
     assert_raise(ArgumentError){
       have_struct_member('struct passwd', 'pw_name', 'pwd.h', true)
     }
+  end
+
+  def teardown
+    @st_type   = nil
+    @st_member = nil
+    @st_header = nil
   end
 
   def self.shutdown
