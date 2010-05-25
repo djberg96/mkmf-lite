@@ -97,7 +97,6 @@ module Mkmf
           File.open(@@cpp_srcfile, 'w'){ |fh| fh.write(code) }
 
           command  = @@cpp_command + ' '
-          command += @@cpp_libraries + ' '
           command += @@cpp_outfile + ' '
           command += @@cpp_srcfile
 
