@@ -72,7 +72,7 @@ module Mkmf
       headers = [headers] unless headers.is_a?(Array)
 
       unless Config::CONFIG['COMMON_HEADERS'].empty?
-        headers += Config::CONFIG['COMMON_HEADERS']
+        headers += Config::CONFIG['COMMON_HEADERS'].split
       end
 
       headers = headers.flatten.uniq
