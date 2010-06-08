@@ -6,12 +6,31 @@ require 'ptools'
 module Mkmf
   module Lite
     # The version of the mkmf-lite library
-    MKMF_LITE_VERSION = '0.1.0'
+    MKMF_LITE_VERSION = '0.2.0'
 
     @@cpp_command   = Config::CONFIG['CC'] || Config::CONFIG['CPP']
-    @@cpp_outfile   = Config::CONFIG['CPPOUTFILE'] # -o conftest.i
-    @@cpp_libraries = Config::CONFIG['LIBS'] + Config::CONFIG['LIBRUBYARG']
+    @@cpp_outfile   = Config::CONFIG['CPPOUTFILE'] || "-o conftest.i"
     @@cpp_srcfile   = 'conftest.c'
+
+    if Config::CONFIG['LIBS']
+      @@cpp_libraries = Config::CONFIG['LIBS'] + Config::CONFIG['LIBRUBYARG']
+    else
+      # TODO: We should adjust this based on OS. For now we're using
+      # arguments I think you'll typically see set on Linux and BSD.
+      @@cpp_libraries = "-lrt -ldl -lcrypt -lm"
+    end
+
+    # JRuby, and possibly others
+    unless @@cpp_command
+      case Config::CONFIG['host_os']
+        when /msdos|mswin|win32|mingw|cygwin/i
+          @@cpp_command = File.which('cl') || File.which('gcc')
+        when /sunos|solaris|hpux/i
+          @@cpp_command = File.which('cc') || File.which('gcc')
+        else
+          @@cpp_command = 'gcc'
+      end
+    end
 
     # Check for the presence of the given +header+ file.
     #
@@ -71,7 +90,9 @@ module Mkmf
     def get_header_string(headers)
       headers = [headers] unless headers.is_a?(Array)
 
-      unless Config::CONFIG['COMMON_HEADERS'].empty?
+      common_headers = Config::CONFIG['COMMON_HEADERS']
+
+      unless common_headers.nil? || common_headers.empty?
         headers += Config::CONFIG['COMMON_HEADERS'].split
       end
 
