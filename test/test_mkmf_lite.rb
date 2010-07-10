@@ -45,7 +45,7 @@ class TC_Mkmf_Lite < Test::Unit::TestCase
 
   test "have_func with no arguments returns expected boolean value" do
     assert_true(have_func('abort'))
-    assert_false(have_header('abortxyz'))
+    assert_false(have_func('abortxyz'))
   end
 
   test "have_func with arguments returns expected boolean value" do
