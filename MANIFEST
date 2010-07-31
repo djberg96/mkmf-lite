@@ -3,5 +3,8 @@
 * Rakefile
 * mkmf-lite.gemspec
 * lib/mkmf/lite.rb
+* lib/mkmf/templates/have_func.erb
+* lib/mkmf/templates/have_func_pointer.erb
 * lib/mkmf/templates/have_header.erb
+* lib/mkmf/templates/have_struct_member.erb
 * test/test_mkmf_lite.rb
