@@ -12,7 +12,7 @@ class TC_Mkmf_Lite < Test::Unit::TestCase
   include Mkmf::Lite
 
   def self.startup
-    @@windows = Config::CONFIG['host_os'] =~ /mswin|msdos|win32|mingw|cygwin/i
+    @@windows = Config::CONFIG['host_os'] =~ /mswin|msdos|win32|mingw|cygwin|windows/i
   end
 
   def setup
