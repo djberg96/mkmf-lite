@@ -1,14 +1,10 @@
 require 'rake'
+require 'rake/clean'
 require 'rake/testtask'
-require 'rbconfig'
 
+CLEAN.include("**/*.gem", "**/*.rbc")
 
 namespace 'gem' do
-  desc 'Remove any existing .gem files'
-  task :clean do
-    Dir['**/*.gem'].each{ |f| File.delete(f) }
-  end
-  
   desc 'Create the mkmf-lite gem.'
   task :create => [:clean] do
     spec = eval(IO.read('mkmf-lite.gemspec'))
@@ -26,3 +22,5 @@ Rake::TestTask.new do |t|
   t.verbose = true
   t.warning = true
 end
+
+task :default => :test
