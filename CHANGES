@@ -1,3 +1,6 @@
+= 0.2.1 - 21-Jan-2011
+* Minor platform detection adjustments for MS Windows.
+
 = 0.2.0 - 8-Jun-2010
 * Now works properly with JRuby (though it still requires a compiler
   somewhere on your system).
