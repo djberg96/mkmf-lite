@@ -6,11 +6,11 @@ require 'ptools'
 module Mkmf
   module Lite
     # The version of the mkmf-lite library
-    MKMF_LITE_VERSION = '0.2.0'
+    MKMF_LITE_VERSION = '0.2.1'
 
-    @@cpp_command   = Config::CONFIG['CC'] || Config::CONFIG['CPP']
-    @@cpp_outfile   = Config::CONFIG['CPPOUTFILE'] || "-o conftest.i"
-    @@cpp_srcfile   = 'conftest.c'
+    @@cpp_command = Config::CONFIG['CC'] || Config::CONFIG['CPP']
+    @@cpp_outfile = Config::CONFIG['CPPOUTFILE'] || "-o conftest.i"
+    @@cpp_srcfile = 'conftest.c'
 
     if Config::CONFIG['LIBS']
       @@cpp_libraries = Config::CONFIG['LIBS'] + Config::CONFIG['LIBRUBYARG']
@@ -23,7 +23,7 @@ module Mkmf
     # JRuby, and possibly others
     unless @@cpp_command
       case Config::CONFIG['host_os']
-        when /msdos|mswin|win32|mingw|cygwin/i
+        when /msdos|mswin|win32|windows|mingw|cygwin/i
           @@cpp_command = File.which('cl') || File.which('gcc')
         when /sunos|solaris|hpux/i
           @@cpp_command = File.which('cc') || File.which('gcc')
@@ -111,7 +111,7 @@ module Mkmf
     #
     def try_to_compile(code)
       begin
-        bool = false
+        boolean = false
         stderr_orig = $stderr.dup
 
         Dir.chdir(Dir.tmpdir){
@@ -122,7 +122,7 @@ module Mkmf
           command += @@cpp_srcfile
 
           $stderr.reopen(File.null)
-          bool = system(command)
+          boolean = system(command)
         }
       ensure
         File.delete(@@cpp_srcfile) if File.exists?(@@cpp_srcfile)
@@ -130,7 +130,7 @@ module Mkmf
         $stderr.reopen(stderr_orig)
       end
 
-      bool
+      boolean
     end
 
     # Slurp the contents of the template file for evaluation later.

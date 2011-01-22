@@ -12,17 +12,17 @@ class TC_Mkmf_Lite < Test::Unit::TestCase
   include Mkmf::Lite
 
   def self.startup
-    @@windows = Config::CONFIG['host_os'] =~ /mswin|msdos|win32|mingw|cygwin|windows/i
+    @@windows = File::ALT_SEPARATOR
   end
 
   def setup
     @st_type   = 'struct stat'
     @st_member = 'st_uid'
-    @st_header = 'sys/stat.h' 
+    @st_header = 'sys/stat.h'
   end
 
   test "version information" do
-    assert_equal('0.2.0', MKMF_LITE_VERSION)
+    assert_equal('0.2.1', MKMF_LITE_VERSION)
   end
 
   test "have_header basic functionality" do
