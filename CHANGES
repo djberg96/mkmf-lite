@@ -1,3 +1,8 @@
+= 0.2.2 - ???
+* Added the check_sizeof method.
+* If CONFIG['COMMON_HEADERS'] is blank then stdio.h and stdlib.h are
+  used instead. On MS Windows the windows.h header is also used.
+
 = 0.2.1 - 21-Jan-2011
 * Minor platform detection adjustments for MS Windows.
 
