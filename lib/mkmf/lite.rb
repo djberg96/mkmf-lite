@@ -96,7 +96,7 @@ module Mkmf
     #   end
     #
     def check_sizeof(type, headers = [])
-      headers = get_header_string(['stdio.h', headers]) # Must add stdio.h here.
+      headers = get_header_string(headers)
       erb = ERB.new(read_template('check_sizeof.erb'))
       code = erb.result(binding)
 
