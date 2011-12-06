@@ -6,7 +6,7 @@ require 'ptools'
 module Mkmf
   module Lite
     # The version of the mkmf-lite library
-    MKMF_LITE_VERSION = '0.2.1'
+    MKMF_LITE_VERSION = '0.2.2'
 
     @@cpp_command = Config::CONFIG['CC'] || Config::CONFIG['CPP']
     @@cpp_outfile = Config::CONFIG['CPPOUTFILE'] || "-o conftest.i"
@@ -92,8 +92,13 @@ module Mkmf
 
       common_headers = Config::CONFIG['COMMON_HEADERS']
 
-      unless common_headers.nil? || common_headers.empty?
-        headers += Config::CONFIG['COMMON_HEADERS'].split
+      if common_headers.nil? || common_headers.empty?
+        if headers.empty?
+          headers = ['stdio.h', 'stdlib.h']
+          headers += 'windows.h' if File::ALT_SEPARATOR
+        end
+      else
+        headers += common_headers.split
       end
 
       headers = headers.flatten.uniq
