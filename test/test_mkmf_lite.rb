@@ -22,7 +22,7 @@ class TC_Mkmf_Lite < Test::Unit::TestCase
   end
 
   test "version information" do
-    assert_equal('0.2.1', MKMF_LITE_VERSION)
+    assert_equal('0.2.2', MKMF_LITE_VERSION)
   end
 
   test "have_header basic functionality" do
@@ -80,6 +80,31 @@ class TC_Mkmf_Lite < Test::Unit::TestCase
     assert_raise(ArgumentError){
       have_struct_member('struct passwd', 'pw_name', 'pwd.h', true)
     }
+  end
+
+  test "check_sizeof basic functionality" do
+    assert_respond_to(self, :check_sizeof)
+    assert_nothing_raised{ check_sizeof('struct passwd', 'pwd.h') }
+  end
+
+  test "check_sizeof requires at least one argument" do
+    assert_raise(ArgumentError){ check_sizeof }
+    assert_raise(ArgumentError){ check_sizeof('struct passwd', 'pw_name', 1) }
+  end
+
+  test "check_sizeof accepts a maximum of two arguments" do
+    assert_raise(ArgumentError){ check_sizeof('div_t', 'stdlib.h', 1) }
+  end
+
+  test "check_sizeof works with one or two arguments" do
+    assert_nothing_raised{ check_sizeof('div_t') }
+    assert_nothing_raised{ check_sizeof('div_t', 'stdlib.h') }
+  end
+
+  test "check_sizeof returns an integer value" do
+    size = check_sizeof('struct passwd', 'pwd.h')
+    assert_kind_of(Integer, size)
+    assert_true(size > 0)
   end
 
   def teardown
