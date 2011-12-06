@@ -3,6 +3,12 @@ require 'rbconfig'
 require 'tmpdir'
 require 'ptools'
 
+if File::ALT_SEPARATOR && RUBY_VERSION.to_f < 1.9
+  require 'win32/open3'
+else
+  require 'open3'
+end
+
 module Mkmf
   module Lite
     # The version of the mkmf-lite library
@@ -62,7 +68,7 @@ module Mkmf
     end
 
     # Checks whether or not the struct of type +struct_type+ contains the
-    # +struct_member+.  If it does not, or the struct type cannot be found,
+    # +struct_member+. If it does not, or the struct type cannot be found,
     # then false is returned.
     #
     # An optional list of +headers+ may be specified, in addition to the
@@ -74,6 +80,27 @@ module Mkmf
       code = erb.result(binding)
 
       try_to_compile(code)
+    end
+
+    # Returns the sizeof +type+ using +headers+, or common headers if no
+    # headers are specified.
+    #
+    # If this method fails an error is raised. This could happen if the type
+    # can't be found and/or the header files do not include the indicated type.
+    #
+    # Example:
+    #
+    #   class Foo
+    #     include Mkmf::Lite
+    #     utsname = check_sizeof('struct utsname', 'sys/utsname.h')
+    #   end
+    #
+    def check_sizeof(type, headers = [])
+      headers = get_header_string(['stdio.h', headers]) # Must add stdio.h here.
+      erb = ERB.new(read_template('check_sizeof.erb'))
+      code = erb.result(binding)
+
+      try_to_execute(code)
     end
 
     private
@@ -105,6 +132,51 @@ module Mkmf
       headers = headers.map{ |h| "#include <#{h}>" }.join("\n")
 
       headers
+    end
+
+    # Create a temporary bit of C source code in the temp directory, and
+    # try to compile it. If it succeeds attempt to run the generated code.
+    # The code generated is expected to print a number to STDOUT, which
+    # is then grabbed and returned as an integer.
+    #
+    # Note that $stderr is temporarily redirected to the null device because
+    # we don't actually care about the reason for failure, though a Ruby
+    # error is raised if the compilation step fails.
+    #
+    def try_to_execute(code)
+      begin
+        result = 0
+
+        stderr_orig = $stderr.dup
+
+        Dir.chdir(Dir.tmpdir){
+          File.open(@@cpp_srcfile, 'w'){ |fh| fh.write(code) }
+
+          command  = @@cpp_command + ' '
+          command += @@cpp_outfile + ' '
+          command += @@cpp_srcfile
+
+          $stderr.reopen(File.null)
+
+          puts command
+
+          if system(command)
+            Open3.popen3("./conftest.i") do |stdin, stdout, stderr|
+              stdin.close
+              stderr.close
+              result = stdout.gets.chomp.to_i
+            end
+          else
+            raise "Failed to compile source code:\n===\n" + code + "==="
+          end
+        }
+      ensure
+        File.delete(@@cpp_srcfile) if File.exists?(@@cpp_srcfile)
+        File.delete(@@cpp_outfile) if File.exists?(@@cpp_outfile)
+        $stderr.reopen(stderr_orig)
+      end
+
+      result
     end
 
     # Create a temporary bit of C source code in the temp directory, and
