@@ -158,8 +158,6 @@ module Mkmf
 
           $stderr.reopen(File.null)
 
-          puts command
-
           if system(command)
             Open3.popen3("./conftest.i") do |stdin, stdout, stderr|
               stdin.close
