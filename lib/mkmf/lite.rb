@@ -14,12 +14,12 @@ module Mkmf
     # The version of the mkmf-lite library
     MKMF_LITE_VERSION = '0.2.2'
 
-    @@cpp_command = Config::CONFIG['CC'] || Config::CONFIG['CPP']
-    @@cpp_outfile = Config::CONFIG['CPPOUTFILE'] || "-o conftest.i"
+    @@cpp_command = RbConfig::CONFIG['CC'] || RbConfig::CONFIG['CPP']
+    @@cpp_outfile = RbConfig::CONFIG['CPPOUTFILE'] || "-o conftest.i"
     @@cpp_srcfile = 'conftest.c'
 
-    if Config::CONFIG['LIBS']
-      @@cpp_libraries = Config::CONFIG['LIBS'] + Config::CONFIG['LIBRUBYARG']
+    if RbConfig::CONFIG['LIBS']
+      @@cpp_libraries = RbConfig::CONFIG['LIBS'] + RbConfig::CONFIG['LIBRUBYARG']
     else
       # TODO: We should adjust this based on OS. For now we're using
       # arguments I think you'll typically see set on Linux and BSD.
@@ -28,7 +28,7 @@ module Mkmf
 
     # JRuby, and possibly others
     unless @@cpp_command
-      case Config::CONFIG['host_os']
+      case RbConfig::CONFIG['host_os']
         when /msdos|mswin|win32|windows|mingw|cygwin/i
           @@cpp_command = File.which('cl') || File.which('gcc')
         when /sunos|solaris|hpux/i
@@ -117,7 +117,7 @@ module Mkmf
     def get_header_string(headers)
       headers = [headers] unless headers.is_a?(Array)
 
-      common_headers = Config::CONFIG['COMMON_HEADERS']
+      common_headers = RbConfig::CONFIG['COMMON_HEADERS']
 
       if common_headers.nil? || common_headers.empty?
         if headers.empty?
