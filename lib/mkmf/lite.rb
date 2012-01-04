@@ -12,7 +12,7 @@ end
 module Mkmf
   module Lite
     # The version of the mkmf-lite library
-    MKMF_LITE_VERSION = '0.2.2'
+    MKMF_LITE_VERSION = '0.2.3'
 
     @@cpp_command = RbConfig::CONFIG['CC'] || RbConfig::CONFIG['CPP']
     @@cpp_outfile = RbConfig::CONFIG['CPPOUTFILE'] || "-o conftest.i"
