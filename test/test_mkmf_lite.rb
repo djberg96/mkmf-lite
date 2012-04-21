@@ -84,7 +84,7 @@ class TC_Mkmf_Lite < Test::Unit::TestCase
 
   test "check_sizeof basic functionality" do
     assert_respond_to(self, :check_sizeof)
-    assert_nothing_raised{ check_sizeof('struct passwd', 'pwd.h') }
+    assert_nothing_raised{ check_sizeof(@st_type, @st_header) }
   end
 
   test "check_sizeof requires at least one argument" do
@@ -102,7 +102,7 @@ class TC_Mkmf_Lite < Test::Unit::TestCase
   end
 
   test "check_sizeof returns an integer value" do
-    size = check_sizeof('struct passwd', 'pwd.h')
+    size = check_sizeof(@st_type, @st_header)
     assert_kind_of(Integer, size)
     assert_true(size > 0)
   end
