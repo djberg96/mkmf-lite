@@ -15,8 +15,13 @@ module Mkmf
     MKMF_LITE_VERSION = '0.2.3'
 
     @@cpp_command = RbConfig::CONFIG['CC'] || RbConfig::CONFIG['CPP']
-    @@cpp_outfile = RbConfig::CONFIG['CPPOUTFILE'] || "-o conftest.i"
     @@cpp_srcfile = 'conftest.c'
+
+    if File::ALT_SEPARATOR && RbConfig::CONFIG['CPP'] =~ /^cl/
+      @@cpp_outfile = '/Feconftest.exe'
+    else
+      @@cpp_outfile = '-o conftest.exe'
+    end
 
     if RbConfig::CONFIG['LIBS']
       @@cpp_libraries = RbConfig::CONFIG['LIBS'] + RbConfig::CONFIG['LIBRUBYARG']
@@ -148,6 +153,7 @@ module Mkmf
         result = 0
 
         stderr_orig = $stderr.dup
+        stdout_orig = $stdout.dup
 
         Dir.chdir(Dir.tmpdir){
           File.open(@@cpp_srcfile, 'w'){ |fh| fh.write(code) }
@@ -156,22 +162,29 @@ module Mkmf
           command += @@cpp_outfile + ' '
           command += @@cpp_srcfile
 
+          # Temporarily close these
           $stderr.reopen(File.null)
+          $stdout.reopen(File.null)
 
           if system(command)
-            Open3.popen3("./conftest.i") do |stdin, stdout, stderr|
+            $stdout.reopen(stdout_orig) # We need this back for open3 to work.
+
+            conftest = File::ALT_SEPARATOR ? "conftest.exe" : "./conftest.exe"
+
+            Open3.popen3(conftest) do |stdin, stdout, stderr|
               stdin.close
               stderr.close
               result = stdout.gets.chomp.to_i
             end
           else
-            raise "Failed to compile source code:\n===\n" + code + "==="
+            raise "Failed to compile source code with command '#{command}':\n===\n" + code + "==="
           end
         }
       ensure
         File.delete(@@cpp_srcfile) if File.exists?(@@cpp_srcfile)
         File.delete(@@cpp_outfile) if File.exists?(@@cpp_outfile)
         $stderr.reopen(stderr_orig)
+        $stdout.reopen(stdout_orig)
       end
 
       result
@@ -188,6 +201,7 @@ module Mkmf
       begin
         boolean = false
         stderr_orig = $stderr.dup
+        stdout_orig = $stdout.dup
 
         Dir.chdir(Dir.tmpdir){
           File.open(@@cpp_srcfile, 'w'){ |fh| fh.write(code) }
@@ -197,11 +211,13 @@ module Mkmf
           command += @@cpp_srcfile
 
           $stderr.reopen(File.null)
+          $stdout.reopen(File.null)
           boolean = system(command)
         }
       ensure
         File.delete(@@cpp_srcfile) if File.exists?(@@cpp_srcfile)
         File.delete(@@cpp_outfile) if File.exists?(@@cpp_outfile)
+        $stdout.reopen(stdout_orig)
         $stderr.reopen(stderr_orig)
       end
 
