@@ -1,9 +1,10 @@
-= 0.2.3 - ???
+= 0.2.3 - 25-Apr-2012
 * No longer assumes mingw/gcc on Windows. Now passes all tests with a
   version of Ruby compiled with MSVC++.
 * Eliminate Config vs RbConfig warnings in 1.9.3.
 * The stdout stream is now temporarily closed in places where it could
   result in unwanted output.
+* Upgraded test-unit prerequisite to 2.4.0 or later.
 
 = 0.2.2 - 6-Dec-2011
 * Added the check_sizeof method.
