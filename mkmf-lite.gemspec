@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
   spec.rubyforge_project = 'shards'
    
   spec.add_dependency('ptools')
-  spec.add_development_dependency('test-unit', '>= 2.1.2')
+  spec.add_development_dependency('test-unit', '>= 2.4.0')
 
   spec.description = <<-EOF
     The mkmf-lite library is a light version of the the mkmf library

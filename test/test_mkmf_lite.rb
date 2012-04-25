@@ -4,8 +4,7 @@
 # Tests for the mkmf-lite library.
 ########################################################################
 require 'rubygems'
-gem 'test-unit'
-require 'test/unit'
+require 'test-unit'
 require 'mkmf/lite'
 
 class TC_Mkmf_Lite < Test::Unit::TestCase
