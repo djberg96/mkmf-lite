@@ -11,7 +11,7 @@
   require 'mkmf/lite'
 
   class System
-    include Mkmf::Lite
+    extend Mkmf::Lite
 
     HAVE_PW_NAME = have_struct_member('struct passwd', 'pw_name', 'pwd.h')
 
