@@ -12,7 +12,7 @@ end
 module Mkmf
   module Lite
     # The version of the mkmf-lite library
-    MKMF_LITE_VERSION = '0.2.3'
+    MKMF_LITE_VERSION = '0.2.4'
 
     @@cpp_command = RbConfig::CONFIG['CC'] || RbConfig::CONFIG['CPP']
     @@cpp_srcfile = 'conftest.c'
@@ -43,14 +43,24 @@ module Mkmf
       end
     end
 
-    # Check for the presence of the given +header+ file.
+    # Check for the presence of the given +header+ file. You may optionally
+    # provide a list of directories to search.
     #
     # Returns true if found, or false if not found.
     #
-    def have_header(header)
+    def have_header(header, *directories)
       erb = ERB.new(read_template('have_header.erb'))
       code = erb.result(binding)
-      try_to_compile(code)
+
+      if directories.empty?
+        options = nil
+      else
+        options = ""
+        directories.each{ |dir| options += "-I#{dir} " }
+        options.rstrip!
+      end
+
+      try_to_compile(code, options)
     end
 
     # Check for the presence of the given +function+ in the common header
@@ -197,7 +207,7 @@ module Mkmf
     # Note that $stderr is temporarily redirected to the null device because
     # we don't actually care about the reason for failure.
     #
-    def try_to_compile(code)
+    def try_to_compile(code, command_options=nil)
       begin
         boolean = false
         stderr_orig = $stderr.dup
@@ -206,7 +216,12 @@ module Mkmf
         Dir.chdir(Dir.tmpdir){
           File.open(@@cpp_srcfile, 'w'){ |fh| fh.write(code) }
 
-          command  = @@cpp_command + ' '
+          if command_options
+            command  = @@cpp_command + ' ' + command_options + ' '
+          else
+            command  = @@cpp_command + ' '
+          end
+
           command += @@cpp_outfile + ' '
           command += @@cpp_srcfile
 

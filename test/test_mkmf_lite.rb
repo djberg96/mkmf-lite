@@ -21,7 +21,7 @@ class TC_Mkmf_Lite < Test::Unit::TestCase
   end
 
   test "version information" do
-    assert_equal('0.2.3', MKMF_LITE_VERSION)
+    assert_equal('0.2.4', MKMF_LITE_VERSION)
   end
 
   test "have_header basic functionality" do
@@ -33,9 +33,9 @@ class TC_Mkmf_Lite < Test::Unit::TestCase
     assert_false(have_header('foobar.h'))
   end
 
-  test "have_header requires one argument only" do
-    assert_raise(ArgumentError){ have_header }
-    assert_raise(ArgumentError){ have_header('stdio.h', 'stdlib.h') }
+  test "have_header accepts an array of directories as a second argument" do
+    assert_nothing_raised{ have_header('stdio.h', '/usr/local/include') }
+    assert_nothing_raised{ have_header('stdio.h', '/usr/local/include', '/usr/include') }
   end
 
   test "have_func basic functionality" do
