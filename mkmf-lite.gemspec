@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.author    = 'Daniel J. Berger'
   spec.license   = 'Artistic 2.0'
   spec.email     = 'djberg96@gmail.com'
-  spec.homepage  = 'http://github.com/djberg96/mkmf-lite
+  spec.homepage  = 'http://github.com/djberg96/mkmf-lite'
   spec.test_file = 'test/test_mkmf_lite.rb'
   spec.files     = Dir['**/*'].reject{ |f| f.include?('git') }
 
