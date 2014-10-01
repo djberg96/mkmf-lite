@@ -12,7 +12,7 @@ end
 module Mkmf
   module Lite
     # The version of the mkmf-lite library
-    MKMF_LITE_VERSION = '0.2.4'
+    MKMF_LITE_VERSION = '0.2.5'
 
     @@cpp_command = RbConfig::CONFIG['CC'] || RbConfig::CONFIG['CPP']
     @@cpp_srcfile = 'conftest.c'
@@ -41,6 +41,11 @@ module Mkmf
         else
           @@cpp_command = 'gcc'
       end
+    end
+
+    # Ruby installer can't be trusted to set a sane value
+    if RbConfig::CONFIG['host_os'] =~ /mingw/i
+      @@cpp_command = File.which('gcc')
     end
 
     # Check for the presence of the given +header+ file. You may optionally
