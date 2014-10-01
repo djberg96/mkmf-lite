@@ -1,3 +1,7 @@
+= 0.2.5 - ???
+* The CC command for mingw now defaults to searching your path rather than
+  relying on an environment variable because it wasn't trustworthy.
+
 = 0.2.4 - 7-Mar-2013
 * The have_header method now accepts an optional list of directories to search.
 
