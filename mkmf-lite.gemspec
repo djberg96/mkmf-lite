@@ -3,7 +3,7 @@ require 'rubygems'
 Gem::Specification.new do |spec|
   spec.name      = 'mkmf-lite'
   spec.summary   = 'A lighter version of mkmf designed for use as a library'
-  spec.version   = '0.2.4'
+  spec.version   = '0.2.5'
   spec.author    = 'Daniel J. Berger'
   spec.license   = 'Artistic 2.0'
   spec.email     = 'djberg96@gmail.com'
