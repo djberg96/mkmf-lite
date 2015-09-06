@@ -21,7 +21,7 @@ class TC_Mkmf_Lite < Test::Unit::TestCase
   end
 
   test "version information" do
-    assert_equal('0.2.5', MKMF_LITE_VERSION)
+    assert_equal('0.2.6', MKMF_LITE_VERSION)
   end
 
   test "have_header basic functionality" do
