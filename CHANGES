@@ -1,3 +1,8 @@
+= 0.2.6 - 6-Sep-2015
+* Added an mkmf-lite.rb file for convenience.
+* Assume Rubygems 2.x.
+* This gem is now signed.
+
 = 0.2.5 - 2-Oct-2014
 * The CC command for mingw now defaults to searching your path rather than
   relying on an environment variable because it wasn't trustworthy.
