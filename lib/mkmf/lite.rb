@@ -2,17 +2,12 @@ require 'erb'
 require 'rbconfig'
 require 'tmpdir'
 require 'ptools'
-
-if File::ALT_SEPARATOR && RUBY_VERSION.to_f < 1.9
-  require 'win32/open3'
-else
-  require 'open3'
-end
+require 'open3'
 
 module Mkmf
   module Lite
     # The version of the mkmf-lite library
-    MKMF_LITE_VERSION = '0.2.5'
+    MKMF_LITE_VERSION = '0.2.6'
 
     @@cpp_command = RbConfig::CONFIG['CC'] || RbConfig::CONFIG['CPP']
     @@cpp_srcfile = 'conftest.c'
