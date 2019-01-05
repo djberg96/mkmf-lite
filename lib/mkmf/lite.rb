@@ -9,6 +9,8 @@ module Mkmf
     # The version of the mkmf-lite library
     MKMF_LITE_VERSION = '0.3.0'.freeze
 
+    private
+
     def cpp_command
       RbConfig::CONFIG['CC'] || RbConfig::CONFIG['CPP'] || File.which('cc') || File.which('gcc') || File.which('cl')
     end
@@ -34,6 +36,8 @@ module Mkmf
         '-lrt -ldl -lcrypt -lm'
       end
     end
+
+    public
 
     # Check for the presence of the given +header+ file. You may optionally
     # provide a list of directories to search.
@@ -161,7 +165,7 @@ module Mkmf
           File.open(cpp_source_file, 'w'){ |fh| fh.write(code) }
 
           command  = cpp_command + ' '
-          command += cpp_outfile + ' '
+          command += cpp_out_file + ' '
           command += cpp_source_file
 
           # Temporarily close these
@@ -184,7 +188,7 @@ module Mkmf
         }
       ensure
         File.delete(cpp_source_file) if File.exists?(cpp_source_file)
-        File.delete(cpp_outfile) if File.exists?(cpp_outfile)
+        File.delete(cpp_out_file) if File.exists?(cpp_out_file)
         $stderr.reopen(stderr_orig)
         $stdout.reopen(stdout_orig)
       end
@@ -214,7 +218,7 @@ module Mkmf
             command  = cpp_command + ' '
           end
 
-          command += cpp_outfile + ' '
+          command += cpp_out_file + ' '
           command += cpp_source_file
 
           $stderr.reopen(File.null)
@@ -223,7 +227,7 @@ module Mkmf
         }
       ensure
         File.delete(cpp_source_file) if File.exists?(cpp_source_file)
-        File.delete(cpp_outfile) if File.exists?(cpp_outfile)
+        File.delete(cpp_out_file) if File.exists?(cpp_out_file)
         $stdout.reopen(stdout_orig)
         $stderr.reopen(stderr_orig)
       end
