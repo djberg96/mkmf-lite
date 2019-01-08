@@ -12,7 +12,9 @@ module Mkmf
     private
 
     def cpp_command
-      RbConfig::CONFIG['CC'] || RbConfig::CONFIG['CPP'] || File.which('cc') || File.which('gcc') || File.which('cl')
+      command = RbConfig::CONFIG['CC'] || RbConfig::CONFIG['CPP'] || File.which('cc') || File.which('gcc') || File.which('cl')
+      raise "Compiler not found" unless command
+      command
     end
 
     def cpp_source_file
