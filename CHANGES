@@ -1,3 +1,8 @@
+= 0.3.0 - 6-Jan-2019
+* Changed license to Apache-2.0.
+* Replaced class variables with methods.
+* Updated cert.
+
 = 0.2.6 - 6-Sep-2015
 * Added an mkmf-lite.rb file for convenience.
 * Assume Rubygems 2.x.

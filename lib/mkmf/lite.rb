@@ -7,41 +7,39 @@ require 'open3'
 module Mkmf
   module Lite
     # The version of the mkmf-lite library
-    MKMF_LITE_VERSION = '0.2.6'
+    MKMF_LITE_VERSION = '0.3.0'.freeze
 
-    @@cpp_command = RbConfig::CONFIG['CC'] || RbConfig::CONFIG['CPP']
-    @@cpp_srcfile = 'conftest.c'
+    private
 
-    if File::ALT_SEPARATOR && RbConfig::CONFIG['CPP'] =~ /^cl/
-      @@cpp_outfile = '/Feconftest.exe'
-    else
-      @@cpp_outfile = '-o conftest.exe'
+    def cpp_command
+      command = RbConfig::CONFIG['CC'] || RbConfig::CONFIG['CPP'] || File.which('cc') || File.which('gcc') || File.which('cl')
+      raise "Compiler not found" unless command
+      command
     end
 
-    if RbConfig::CONFIG['LIBS']
-      @@cpp_libraries = RbConfig::CONFIG['LIBS'] + RbConfig::CONFIG['LIBRUBYARG']
-    else
-      # TODO: We should adjust this based on OS. For now we're using
-      # arguments I think you'll typically see set on Linux and BSD.
-      @@cpp_libraries = "-lrt -ldl -lcrypt -lm"
+    def cpp_source_file
+      'conftest.c'
     end
 
-    # JRuby, and possibly others
-    unless @@cpp_command
-      case RbConfig::CONFIG['host_os']
-        when /msdos|mswin|win32|windows|mingw|cygwin/i
-          @@cpp_command = File.which('cl') || File.which('gcc')
-        when /sunos|solaris|hpux/i
-          @@cpp_command = File.which('cc') || File.which('gcc')
-        else
-          @@cpp_command = 'gcc'
+    def cpp_out_file
+      if File::ALT_SEPARATOR && RbConfig::CONFIG['CPP'] =~ /^cl/
+        '/Feconftest.exe'
+      else
+        '-o conftest.exe'
       end
     end
 
-    # Ruby installer can't be trusted to set a sane value
-    if RbConfig::CONFIG['host_os'] =~ /mingw/i
-      @@cpp_command = File.which('gcc')
+    # TODO: We should adjust this based on OS. For now we're using
+    # arguments I think you'll typically see set on Linux and BSD.
+    def cpp_libraries
+      if RbConfig::CONFIG['LIBS']
+        RbConfig::CONFIG['LIBS'] + RbConfig::CONFIG['LIBRUBYARG']
+      else
+        '-lrt -ldl -lcrypt -lm'
+      end
     end
+
+    public
 
     # Check for the presence of the given +header+ file. You may optionally
     # provide a list of directories to search.
@@ -166,11 +164,11 @@ module Mkmf
         stdout_orig = $stdout.dup
 
         Dir.chdir(Dir.tmpdir){
-          File.open(@@cpp_srcfile, 'w'){ |fh| fh.write(code) }
+          File.open(cpp_source_file, 'w'){ |fh| fh.write(code) }
 
-          command  = @@cpp_command + ' '
-          command += @@cpp_outfile + ' '
-          command += @@cpp_srcfile
+          command  = cpp_command + ' '
+          command += cpp_out_file + ' '
+          command += cpp_source_file
 
           # Temporarily close these
           $stderr.reopen(File.null)
@@ -191,8 +189,8 @@ module Mkmf
           end
         }
       ensure
-        File.delete(@@cpp_srcfile) if File.exists?(@@cpp_srcfile)
-        File.delete(@@cpp_outfile) if File.exists?(@@cpp_outfile)
+        File.delete(cpp_source_file) if File.exists?(cpp_source_file)
+        File.delete(cpp_out_file) if File.exists?(cpp_out_file)
         $stderr.reopen(stderr_orig)
         $stdout.reopen(stdout_orig)
       end
@@ -214,24 +212,24 @@ module Mkmf
         stdout_orig = $stdout.dup
 
         Dir.chdir(Dir.tmpdir){
-          File.open(@@cpp_srcfile, 'w'){ |fh| fh.write(code) }
+          File.open(cpp_source_file, 'w'){ |fh| fh.write(code) }
 
           if command_options
-            command  = @@cpp_command + ' ' + command_options + ' '
+            command  = cpp_command + ' ' + command_options + ' '
           else
-            command  = @@cpp_command + ' '
+            command  = cpp_command + ' '
           end
 
-          command += @@cpp_outfile + ' '
-          command += @@cpp_srcfile
+          command += cpp_out_file + ' '
+          command += cpp_source_file
 
           $stderr.reopen(File.null)
           $stdout.reopen(File.null)
           boolean = system(command)
         }
       ensure
-        File.delete(@@cpp_srcfile) if File.exists?(@@cpp_srcfile)
-        File.delete(@@cpp_outfile) if File.exists?(@@cpp_outfile)
+        File.delete(cpp_source_file) if File.exists?(cpp_source_file)
+        File.delete(cpp_out_file) if File.exists?(cpp_out_file)
         $stdout.reopen(stdout_orig)
         $stderr.reopen(stderr_orig)
       end
