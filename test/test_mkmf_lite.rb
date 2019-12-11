@@ -21,7 +21,7 @@ class TC_Mkmf_Lite < Test::Unit::TestCase
   end
 
   test "version information" do
-    assert_equal('0.3.0', MKMF_LITE_VERSION)
+    assert_equal('0.3.1', MKMF_LITE_VERSION)
     assert_true(MKMF_LITE_VERSION.frozen?)
   end
 

@@ -7,7 +7,7 @@ require 'open3'
 module Mkmf
   module Lite
     # The version of the mkmf-lite library
-    MKMF_LITE_VERSION = '0.3.0'.freeze
+    MKMF_LITE_VERSION = '0.3.1'.freeze
 
     private
 
