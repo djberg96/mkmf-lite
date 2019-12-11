@@ -1,5 +1,6 @@
-* CHANGES
-* MANIFEST
+* CHANGES.rdoc
+* MANIFEST.rdoc
+* README.rdoc
 * Rakefile
 * mkmf-lite.gemspec
 * certs/djberg96_pub.pem
