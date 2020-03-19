@@ -3,7 +3,7 @@ require 'rubygems'
 Gem::Specification.new do |spec|
   spec.name       = 'mkmf-lite'
   spec.summary    = 'A lighter version of mkmf designed for use as a library'
-  spec.version    = '0.3.1'
+  spec.version    = '0.3.2'
   spec.author     = 'Daniel J. Berger'
   spec.license    = 'Apache-2.0'
   spec.email      = 'djberg96@gmail.com'
@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
   spec.metadata = {
     'homepage_uri'      => 'https://github.com/djberg96/mkmf-lite',
     'bug_tracker_uri'   => 'https://github.com/djberg96/mkmf-lite/issues',
-    'changelog_uri'     => 'https://github.com/djberg96/mkmf-lite/blob/master/CHANGES',
+    'changelog_uri'     => 'https://github.com/djberg96/mkmf-lite/blob/master/CHANGES.rdoc',
     'documentation_uri' => 'https://github.com/djberg96/mkmf-lite/wiki',
     'source_code_uri'   => 'https://github.com/djberg96/mkmf-lite',
     'wiki_uri'          => 'https://github.com/djberg96/mkmf-lite/wiki'
