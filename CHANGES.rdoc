@@ -1,3 +1,6 @@
+== 0.3.2 - 19-Mar-2020
+* Properly include a LICENSE file as per the Apache-2.0 license.
+
 == 0.3.1 - 11-Dec-2019
 * Added .rdoc extension to various text files so that they render more nicely
   on github.
