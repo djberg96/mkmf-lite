@@ -10,13 +10,10 @@ require 'mkmf/lite'
 describe Mkmf::Lite do
   subject { Class.new{ |obj| obj.extend Mkmf::Lite } }
 
-  let(:windows) {  File::ALT_SEPARATOR }
-
-  before do
-    @st_type   = 'struct stat'
-    @st_member = 'st_uid'
-    @st_header = 'sys/stat.h'
-  end
+  let(:windows)   { File::ALT_SEPARATOR }
+  let(:st_type)   { 'struct stat' }
+  let(:st_member) { 'st_uid' }
+  let(:st_header) { 'sys/stat.h' }
 
   describe "constants" do
     example "version information" do
@@ -71,9 +68,9 @@ describe Mkmf::Lite do
     end
 
     example "have_struct_member returns expected boolean value" do
-      expect(subject.have_struct_member(@st_type, @st_member, @st_header)).to eq(true)
-      expect(subject.have_struct_member(@st_type, 'pw_bogus', @st_header)).to eq(false)
-      expect(subject.have_struct_member(@st_type, @st_member)).to eq(false)
+      expect(subject.have_struct_member(st_type, st_member, st_header)).to eq(true)
+      expect(subject.have_struct_member(st_type, 'pw_bogus', st_header)).to eq(false)
+      expect(subject.have_struct_member(st_type, st_member)).to eq(false)
     end
 
     example "have_struct_member requires at least two arguments" do
@@ -89,7 +86,7 @@ describe Mkmf::Lite do
   context "check_sizeof" do
     example "check_sizeof basic functionality" do
       expect(subject).to respond_to(:check_sizeof)
-      expect{ subject.check_sizeof(@st_type, @st_header) }.not_to raise_error
+      expect{ subject.check_sizeof(st_type, st_header) }.not_to raise_error
     end
 
     example "check_sizeof requires at least one argument" do
@@ -107,15 +104,9 @@ describe Mkmf::Lite do
     end
 
     example "check_sizeof returns an integer value" do
-      size = subject.check_sizeof(@st_type, @st_header)
+      size = subject.check_sizeof(st_type, st_header)
       expect(size).to be_kind_of(Integer)
       expect(size).to be > 0
     end
-  end
-
-  after do
-    @st_type   = nil
-    @st_member = nil
-    @st_header = nil
   end
 end
