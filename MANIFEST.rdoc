@@ -1,7 +1,6 @@
 * CHANGES.rdoc
 * LICENSE
 * MANIFEST.rdoc
-* README.rdoc
 * Rakefile
 * mkmf-lite.gemspec
 * certs/djberg96_pub.pem
@@ -10,4 +9,4 @@
 * lib/mkmf/templates/have_func_pointer.erb
 * lib/mkmf/templates/have_header.erb
 * lib/mkmf/templates/have_struct_member.erb
-* test/test_mkmf_lite.rb
+* spec/mkmf_lite_spec.rb
