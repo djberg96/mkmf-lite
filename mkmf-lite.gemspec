@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.license    = 'Apache-2.0'
   spec.email      = 'djberg96@gmail.com'
   spec.homepage   = 'http://github.com/djberg96/mkmf-lite'
-  spec.test_file  = 'test/test_mkmf_lite.rb'
+  spec.test_file  = 'spec/mkmf_lite_spec.rb'
   spec.files      = Dir['**/*'].reject{ |f| f.include?('git') }
   spec.cert_chain = ['certs/djberg96_pub.pem']
 
