@@ -10,7 +10,6 @@ require 'mkmf/lite'
 describe Mkmf::Lite do
   subject { Class.new{ |obj| obj.extend Mkmf::Lite } }
 
-  let(:windows)   { File::ALT_SEPARATOR }
   let(:st_type)   { 'struct stat' }
   let(:st_member) { 'st_uid' }
   let(:st_header) { 'sys/stat.h' }
