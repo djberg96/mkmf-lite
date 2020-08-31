@@ -1,3 +1,6 @@
+== 0.4.2 - 31-Aug-2020
+* Did I say I didn't need ptools? Well I was wrong. It's back.
+
 == 0.4.1 - 31-Aug-2020
 * Removed the ptools dependency, just use IO::NULL.
 
