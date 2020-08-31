@@ -1,13 +1,12 @@
 require 'erb'
 require 'rbconfig'
 require 'tmpdir'
-require 'ptools'
 require 'open3'
 
 module Mkmf
   module Lite
     # The version of the mkmf-lite library
-    MKMF_LITE_VERSION = '0.4.0'.freeze
+    MKMF_LITE_VERSION = '0.4.1'.freeze
 
     private
 
@@ -171,8 +170,8 @@ module Mkmf
           command += cpp_source_file
 
           # Temporarily close these
-          $stderr.reopen(File.null)
-          $stdout.reopen(File.null)
+          $stderr.reopen(IO::NULL)
+          $stdout.reopen(IO::NULL)
 
           if system(command)
             $stdout.reopen(stdout_orig) # We need this back for open3 to work.
@@ -223,8 +222,8 @@ module Mkmf
           command += cpp_out_file + ' '
           command += cpp_source_file
 
-          $stderr.reopen(File.null)
-          $stdout.reopen(File.null)
+          $stderr.reopen(IO::NULL)
+          $stdout.reopen(IO::NULL)
           boolean = system(command)
         }
       ensure
