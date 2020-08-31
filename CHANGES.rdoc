@@ -1,3 +1,6 @@
+== 0.4.1 - 31-Aug-2020
+* Removed the ptools dependency, just use IO::NULL.
+
 == 0.4.0 - 4-Jul-2020
 * Replaced test-unit with rspec, rewrote the tests, and made relevant
   changes to the gemspec, etc.
