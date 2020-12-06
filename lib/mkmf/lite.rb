@@ -7,7 +7,7 @@ require 'ptools'
 module Mkmf
   module Lite
     # The version of the mkmf-lite library
-    MKMF_LITE_VERSION = '0.4.2'.freeze
+    MKMF_LITE_VERSION = '0.5.0'.freeze
 
     private
 
@@ -93,6 +93,20 @@ module Mkmf
       code = erb.result(binding)
 
       try_to_compile(code)
+    end
+
+    # Returns the value of the given +constant+ (which could also be a macro)
+    # using +headers+, or common headers if no headers are specified.
+    #
+    # If this method fails an error is raised. This could happen if the constant
+    # can't be found and/or the header files do not include the indicated constant.
+    #
+    def check_valueof(constant, headers = [])
+      headers = get_header_string(headers)
+      erb = ERB.new(read_template('check_valueof.erb'))
+      code = erb.result(binding)
+
+      try_to_execute(code)
     end
 
     # Returns the sizeof +type+ using +headers+, or common headers if no
