@@ -13,10 +13,11 @@ describe Mkmf::Lite do
   let(:st_type)   { 'struct stat' }
   let(:st_member) { 'st_uid' }
   let(:st_header) { 'sys/stat.h' }
+  let(:constant)  { 'EOF' }
 
   describe "constants" do
     example "version information" do
-      expect(described_class::MKMF_LITE_VERSION).to eq('0.4.2')
+      expect(described_class::MKMF_LITE_VERSION).to eq('0.5.0')
       expect(described_class::MKMF_LITE_VERSION).to be_frozen
     end
   end
@@ -82,6 +83,32 @@ describe Mkmf::Lite do
     end
   end
 
+  context "check_valueof" do
+    example "check_valueof basic functionality" do
+      expect(subject).to respond_to(:check_valueof)
+      expect{ subject.check_sizeof(constant) }.not_to raise_error
+    end
+
+    example "check_valueof requires at least one argument" do
+      expect{ subject.check_valueof }.to raise_error(ArgumentError)
+    end
+
+    example "check_valueof accepts a maximum of two arguments" do
+      expect{ subject.check_valueof(constant, 'stdio.h', 1) }.to raise_error(ArgumentError)
+    end
+
+    example "check_valueof works with one or two arguments" do
+      expect{ subject.check_valueof(constant) }.not_to raise_error
+      expect{ subject.check_valueof(constant, 'stdio.h') }.not_to raise_error
+    end
+
+    example "check_valueof returns an integer value" do
+      value = subject.check_valueof(constant)
+      expect(value).to be_kind_of(Integer)
+      expect(value).to eq(-1)
+    end
+  end
+
   context "check_sizeof" do
     example "check_sizeof basic functionality" do
       expect(subject).to respond_to(:check_sizeof)
@@ -90,7 +117,6 @@ describe Mkmf::Lite do
 
     example "check_sizeof requires at least one argument" do
       expect{ subject.check_sizeof }.to raise_error(ArgumentError)
-      expect{ subject.check_sizeof('struct passwd', 'pw_name', 1) }.to raise_error(ArgumentError)
     end
 
     example "check_sizeof accepts a maximum of two arguments" do

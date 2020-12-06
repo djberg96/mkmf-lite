@@ -1,3 +1,6 @@
+== 0.5.0 - 6-Dec-2020
+* Added the check_valueof method.
+
 == 0.4.2 - 31-Aug-2020
 * Did I say I didn't need ptools? Well I was wrong. It's back.
 
