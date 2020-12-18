@@ -7,7 +7,7 @@ require 'ptools'
 module Mkmf
   module Lite
     # The version of the mkmf-lite library
-    MKMF_LITE_VERSION = '0.5.0'.freeze
+    MKMF_LITE_VERSION = '0.5.1'.freeze
 
     private
 
