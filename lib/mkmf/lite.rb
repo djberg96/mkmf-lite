@@ -203,8 +203,8 @@ module Mkmf
           end
         }
       ensure
-        File.delete(cpp_source_file) if File.exists?(cpp_source_file)
-        File.delete(cpp_out_file) if File.exists?(cpp_out_file)
+        File.delete(cpp_source_file) if File.exist?(cpp_source_file)
+        File.delete(cpp_out_file) if File.exist?(cpp_out_file)
         $stderr.reopen(stderr_orig)
         $stdout.reopen(stdout_orig)
       end
@@ -242,8 +242,8 @@ module Mkmf
           boolean = system(command)
         }
       ensure
-        File.delete(cpp_source_file) if File.exists?(cpp_source_file)
-        File.delete(cpp_out_file) if File.exists?(cpp_out_file)
+        File.delete(cpp_source_file) if File.exist?(cpp_source_file)
+        File.delete(cpp_out_file) if File.exist?(cpp_out_file)
         $stdout.reopen(stdout_orig)
         $stderr.reopen(stderr_orig)
       end
