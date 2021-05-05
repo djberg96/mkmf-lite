@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.metadata = {
     'homepage_uri'      => 'https://github.com/djberg96/mkmf-lite',
     'bug_tracker_uri'   => 'https://github.com/djberg96/mkmf-lite/issues',
-    'changelog_uri'     => 'https://github.com/djberg96/mkmf-lite/blob/master/CHANGES.rdoc',
+    'changelog_uri'     => 'https://github.com/djberg96/mkmf-lite/blob/main/CHANGES.md',
     'documentation_uri' => 'https://github.com/djberg96/mkmf-lite/wiki',
     'source_code_uri'   => 'https://github.com/djberg96/mkmf-lite',
     'wiki_uri'          => 'https://github.com/djberg96/mkmf-lite/wiki'
