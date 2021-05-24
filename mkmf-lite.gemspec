@@ -13,6 +13,7 @@ Gem::Specification.new do |spec|
   spec.cert_chain = ['certs/djberg96_pub.pem']
 
   spec.add_dependency('ptools', '~> 1.4')
+  spec.add_development_dependency('rake')
   spec.add_development_dependency('rspec', '~> 3.9')
 
   spec.metadata = {
