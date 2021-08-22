@@ -4,6 +4,9 @@ A light version of mkmf designed for use within programs.
 ## Installation
 `gem install mkmf-lite`
 
+## Adding the trusted cert
+`gem cert --add <(curl -Ls https://raw.githubusercontent.com/djberg96/mkmf-lite/main/certs/djberg96_pub.pem)`
+
 ## Prerequisites
 A C compiler somewhere on your system.
 
