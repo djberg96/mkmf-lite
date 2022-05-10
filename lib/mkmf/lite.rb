@@ -156,9 +156,7 @@ module Mkmf
       end
 
       headers = headers.flatten.uniq
-      headers = headers.map{ |h| "#include <#{h}>" }.join("\n")
-
-      headers
+      headers.map{ |h| "#include <#{h}>" }.join("\n")
     end
 
     # Create a temporary bit of C source code in the temp directory, and
