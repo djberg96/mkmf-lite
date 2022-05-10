@@ -16,11 +16,13 @@ module Mkmf
 
     private
 
+    # rubocop:disable Layout/LineLength
     def cpp_command
       command = RbConfig::CONFIG['CC'] || RbConfig::CONFIG['CPP'] || File.which('cc') || File.which('gcc') || File.which('cl')
       raise 'Compiler not found' unless command
       command
     end
+    # rubocop:enable Layout/LineLength
 
     def cpp_source_file
       'conftest.c'
