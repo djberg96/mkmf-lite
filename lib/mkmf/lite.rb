@@ -13,7 +13,7 @@ module Mkmf
 
     def cpp_command
       command = RbConfig::CONFIG['CC'] || RbConfig::CONFIG['CPP'] || File.which('cc') || File.which('gcc') || File.which('cl')
-      raise "Compiler not found" unless command
+      raise 'Compiler not found' unless command
       command
     end
 
@@ -53,7 +53,7 @@ module Mkmf
       if directories.empty?
         options = nil
       else
-        options = ""
+        options = ''
         directories.each{ |dir| options += "-I#{dir} " }
         options.rstrip!
       end
@@ -191,7 +191,7 @@ module Mkmf
           if system(command)
             $stdout.reopen(stdout_orig) # We need this back for open3 to work.
 
-            conftest = File::ALT_SEPARATOR ? "conftest.exe" : "./conftest.exe"
+            conftest = File::ALT_SEPARATOR ? 'conftest.exe' : './conftest.exe'
 
             Open3.popen3(conftest) do |stdin, stdout, stderr|
               stdin.close
@@ -199,7 +199,7 @@ module Mkmf
               result = stdout.gets.chomp.to_i
             end
           else
-            raise "Failed to compile source code with command '#{command}':\n===\n" + code + "==="
+            raise "Failed to compile source code with command '#{command}':\n===\n" + code + '==='
           end
         }
       ensure
