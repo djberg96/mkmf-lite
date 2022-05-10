@@ -180,8 +180,8 @@ module Mkmf
         Dir.chdir(Dir.tmpdir){
           File.open(cpp_source_file, 'w'){ |fh| fh.write(code) }
 
-          command  = cpp_command + ' '
-          command += cpp_out_file + ' '
+          command  = "#{cpp_command} "
+          command += "#{cpp_out_file} "
           command += cpp_source_file
 
           # Temporarily close these
@@ -199,7 +199,7 @@ module Mkmf
               result = stdout.gets.chomp.to_i
             end
           else
-            raise "Failed to compile source code with command '#{command}':\n===\n" + code + '==='
+            raise "Failed to compile source code with command '#{command}':\n===\n#{code}==="
           end
         }
       ensure
@@ -229,12 +229,12 @@ module Mkmf
           File.open(cpp_source_file, 'w'){ |fh| fh.write(code) }
 
           if command_options
-            command  = cpp_command + ' ' + command_options + ' '
+            command  = "#{cpp_command} #{command_options} "
           else
-            command  = cpp_command + ' '
+            command  = "#{cpp_command} "
           end
 
-          command += cpp_out_file + ' '
+          command += "#{cpp_out_file} "
           command += cpp_source_file
 
           $stderr.reopen(IO::NULL)
