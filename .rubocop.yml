@@ -12,7 +12,7 @@ RSpec/InstanceVariable:
 AllCops:
   NewCops: enable
   Exclude:
-    - mkmf_lite.gemspec
+    - mkmf-lite.gemspec
     - Gemfile
     - Rakefile
 Lint/AssignmentInCondition:
