@@ -1,21 +1,28 @@
+# frozen_string_literal: true
+
 require 'erb'
 require 'rbconfig'
 require 'tmpdir'
 require 'open3'
 require 'ptools'
 
+# The Mkmf module serves as a namespace only.
 module Mkmf
+  # The Lite module scopes the Mkmf module to differentiate it from the
+  # Mkmf module in the standard library.
   module Lite
     # The version of the mkmf-lite library
-    MKMF_LITE_VERSION = '0.5.1'.freeze
+    MKMF_LITE_VERSION = '0.5.1'
 
     private
 
+    # rubocop:disable Layout/LineLength
     def cpp_command
       command = RbConfig::CONFIG['CC'] || RbConfig::CONFIG['CPP'] || File.which('cc') || File.which('gcc') || File.which('cl')
-      raise "Compiler not found" unless command
+      raise 'Compiler not found' unless command
       command
     end
+    # rubocop:enable Layout/LineLength
 
     def cpp_source_file
       'conftest.c'
@@ -53,7 +60,7 @@ module Mkmf
       if directories.empty?
         options = nil
       else
-        options = ""
+        options = ''
         directories.each{ |dir| options += "-I#{dir} " }
         options.rstrip!
       end
@@ -156,9 +163,7 @@ module Mkmf
       end
 
       headers = headers.flatten.uniq
-      headers = headers.map{ |h| "#include <#{h}>" }.join("\n")
-
-      headers
+      headers.map{ |h| "#include <#{h}>" }.join("\n")
     end
 
     # Create a temporary bit of C source code in the temp directory, and
@@ -177,11 +182,11 @@ module Mkmf
         stderr_orig = $stderr.dup
         stdout_orig = $stdout.dup
 
-        Dir.chdir(Dir.tmpdir){
-          File.open(cpp_source_file, 'w'){ |fh| fh.write(code) }
+        Dir.chdir(Dir.tmpdir) do
+          File.write(cpp_source_file, code)
 
-          command  = cpp_command + ' '
-          command += cpp_out_file + ' '
+          command  = "#{cpp_command} "
+          command += "#{cpp_out_file} "
           command += cpp_source_file
 
           # Temporarily close these
@@ -191,7 +196,7 @@ module Mkmf
           if system(command)
             $stdout.reopen(stdout_orig) # We need this back for open3 to work.
 
-            conftest = File::ALT_SEPARATOR ? "conftest.exe" : "./conftest.exe"
+            conftest = File::ALT_SEPARATOR ? 'conftest.exe' : './conftest.exe'
 
             Open3.popen3(conftest) do |stdin, stdout, stderr|
               stdin.close
@@ -199,9 +204,9 @@ module Mkmf
               result = stdout.gets.chomp.to_i
             end
           else
-            raise "Failed to compile source code with command '#{command}':\n===\n" + code + "==="
+            raise "Failed to compile source code with command '#{command}':\n===\n#{code}==="
           end
-        }
+        end
       ensure
         File.delete(cpp_source_file) if File.exist?(cpp_source_file)
         File.delete(cpp_out_file) if File.exist?(cpp_out_file)
@@ -219,28 +224,28 @@ module Mkmf
     # Note that $stderr is temporarily redirected to the null device because
     # we don't actually care about the reason for failure.
     #
-    def try_to_compile(code, command_options=nil)
+    def try_to_compile(code, command_options = nil)
       begin
         boolean = false
         stderr_orig = $stderr.dup
         stdout_orig = $stdout.dup
 
-        Dir.chdir(Dir.tmpdir){
-          File.open(cpp_source_file, 'w'){ |fh| fh.write(code) }
+        Dir.chdir(Dir.tmpdir) do
+          File.write(cpp_source_file, code)
 
           if command_options
-            command  = cpp_command + ' ' + command_options + ' '
+            command  = "#{cpp_command} #{command_options} "
           else
-            command  = cpp_command + ' '
+            command  = "#{cpp_command} "
           end
 
-          command += cpp_out_file + ' '
+          command += "#{cpp_out_file} "
           command += cpp_source_file
 
           $stderr.reopen(IO::NULL)
           $stdout.reopen(IO::NULL)
           boolean = system(command)
-        }
+        end
       ensure
         File.delete(cpp_source_file) if File.exist?(cpp_source_file)
         File.delete(cpp_out_file) if File.exist?(cpp_out_file)
@@ -254,7 +259,7 @@ module Mkmf
     # Slurp the contents of the template file for evaluation later.
     #
     def read_template(file)
-      IO.read(get_template_file(file))
+      File.read(get_template_file(file))
     end
 
     # Retrieve the path to the template +file+ name.
