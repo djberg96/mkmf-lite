@@ -28,8 +28,8 @@ describe Mkmf::Lite do
     end
 
     example 'have_header returns expected boolean value' do
-      expect(subject.have_header('stdio.h')).to eq(true)
-      expect(subject.have_header('foobar.h')).to eq(false)
+      expect(subject.have_header('stdio.h')).to be(true)
+      expect(subject.have_header('foobar.h')).to be(false)
     end
 
     example 'have_header accepts an array of directories as a second argument' do
@@ -44,13 +44,13 @@ describe Mkmf::Lite do
     end
 
     example 'have_func with no arguments returns expected boolean value' do
-      expect(subject.have_func('abort')).to eq(true)
-      expect(subject.have_func('abortxyz')).to eq(false)
+      expect(subject.have_func('abort')).to be(true)
+      expect(subject.have_func('abortxyz')).to be(false)
     end
 
     example 'have_func with arguments returns expected boolean value' do
-      expect(subject.have_func('printf', 'stdio.h')).to eq(true)
-      expect(subject.have_func('printfx', 'stdio.h')).to eq(false)
+      expect(subject.have_func('printf', 'stdio.h')).to be(true)
+      expect(subject.have_func('printfx', 'stdio.h')).to be(false)
     end
 
     example 'have_func requires at least one argument' do
@@ -68,9 +68,9 @@ describe Mkmf::Lite do
     end
 
     example 'have_struct_member returns expected boolean value' do
-      expect(subject.have_struct_member(st_type, st_member, st_header)).to eq(true)
-      expect(subject.have_struct_member(st_type, 'pw_bogus', st_header)).to eq(false)
-      expect(subject.have_struct_member(st_type, st_member)).to eq(false)
+      expect(subject.have_struct_member(st_type, st_member, st_header)).to be(true)
+      expect(subject.have_struct_member(st_type, 'pw_bogus', st_header)).to be(false)
+      expect(subject.have_struct_member(st_type, st_member)).to be(false)
     end
 
     example 'have_struct_member requires at least two arguments' do
