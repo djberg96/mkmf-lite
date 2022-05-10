@@ -177,7 +177,7 @@ module Mkmf
         stderr_orig = $stderr.dup
         stdout_orig = $stdout.dup
 
-        Dir.chdir(Dir.tmpdir){
+        Dir.chdir(Dir.tmpdir) do
           File.write(cpp_source_file, code)
 
           command  = "#{cpp_command} "
@@ -201,7 +201,7 @@ module Mkmf
           else
             raise "Failed to compile source code with command '#{command}':\n===\n#{code}==="
           end
-        }
+        end
       ensure
         File.delete(cpp_source_file) if File.exist?(cpp_source_file)
         File.delete(cpp_out_file) if File.exist?(cpp_out_file)
@@ -225,7 +225,7 @@ module Mkmf
         stderr_orig = $stderr.dup
         stdout_orig = $stdout.dup
 
-        Dir.chdir(Dir.tmpdir){
+        Dir.chdir(Dir.tmpdir) do
           File.write(cpp_source_file, code)
 
           if command_options
@@ -240,7 +240,7 @@ module Mkmf
           $stderr.reopen(IO::NULL)
           $stdout.reopen(IO::NULL)
           boolean = system(command)
-        }
+        end
       ensure
         File.delete(cpp_source_file) if File.exist?(cpp_source_file)
         File.delete(cpp_out_file) if File.exist?(cpp_out_file)
