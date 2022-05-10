@@ -254,7 +254,7 @@ module Mkmf
     # Slurp the contents of the template file for evaluation later.
     #
     def read_template(file)
-      IO.read(get_template_file(file))
+      File.read(get_template_file(file))
     end
 
     # Retrieve the path to the template +file+ name.
