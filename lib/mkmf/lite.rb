@@ -219,7 +219,7 @@ module Mkmf
     # Note that $stderr is temporarily redirected to the null device because
     # we don't actually care about the reason for failure.
     #
-    def try_to_compile(code, command_options=nil)
+    def try_to_compile(code, command_options = nil)
       begin
         boolean = false
         stderr_orig = $stderr.dup
