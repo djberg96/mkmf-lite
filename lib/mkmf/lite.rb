@@ -178,7 +178,7 @@ module Mkmf
         stdout_orig = $stdout.dup
 
         Dir.chdir(Dir.tmpdir){
-          File.open(cpp_source_file, 'w'){ |fh| fh.write(code) }
+          File.write(cpp_source_file, code)
 
           command  = "#{cpp_command} "
           command += "#{cpp_out_file} "
@@ -226,7 +226,7 @@ module Mkmf
         stdout_orig = $stdout.dup
 
         Dir.chdir(Dir.tmpdir){
-          File.open(cpp_source_file, 'w'){ |fh| fh.write(code) }
+          File.write(cpp_source_file, code)
 
           if command_options
             command  = "#{cpp_command} #{command_options} "
