@@ -6,7 +6,10 @@ require 'tmpdir'
 require 'open3'
 require 'ptools'
 
+# The Mkmf module serves as a namespace only.
 module Mkmf
+  # The Lite module scopes the Mkmf module to differentiate it from the
+  # Mkmf module in the standard library.
   module Lite
     # The version of the mkmf-lite library
     MKMF_LITE_VERSION = '0.5.1'
