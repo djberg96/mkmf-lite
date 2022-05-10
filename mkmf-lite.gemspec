@@ -15,6 +15,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency('ptools', '~> 1.4')
   spec.add_development_dependency('rake')
   spec.add_development_dependency('rspec', '~> 3.9')
+  spec.add_development_dependency('rubocop')
+  spec.add_development_dependency('rubocop-rspec')
 
   spec.metadata = {
     'homepage_uri'      => 'https://github.com/djberg96/mkmf-lite',
