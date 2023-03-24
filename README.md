@@ -1,3 +1,5 @@
+[![Ruby](https://github.com/djberg96/mkmf-lite/actions/workflows/ruby.yml/badge.svg)](https://github.com/djberg96/mkmf-lite/actions/workflows/ruby.yml)
+
 ## Summary
 A light version of mkmf designed for use within programs.
 
@@ -52,7 +54,7 @@ You can ignore these (or, upgrade your Jruby).
 Apache-2.0
 
 ## Copyright
-(C) 2010-2020 Daniel J. Berger
+(C) 2010-2023 Daniel J. Berger
 All Rights Reserved
 
 ## Warranty
