@@ -1,4 +1,4 @@
-## 0.5.2 - 24-Mar-2022
+## 0.5.2 - 24-Mar-2023
 * Lots of rubocop updates and minor cleanup, including the addition of
   rubocop and rubocop-rspec as deve dependencies.
 * Deprecation warning fixes (actually bug fixes for Ruby 3.2).
