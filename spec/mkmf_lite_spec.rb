@@ -9,7 +9,7 @@ require 'rubygems'
 require 'rspec'
 require 'mkmf/lite'
 
-describe Mkmf::Lite do
+RSpec.describe Mkmf::Lite do
   subject { Class.new{ |obj| obj.extend Mkmf::Lite } }
 
   let(:st_type)   { 'struct stat' }
@@ -19,7 +19,7 @@ describe Mkmf::Lite do
 
   describe 'constants' do
     example 'version information' do
-      expect(described_class::MKMF_LITE_VERSION).to eq('0.5.1')
+      expect(described_class::MKMF_LITE_VERSION).to eq('0.5.2')
       expect(described_class::MKMF_LITE_VERSION).to be_frozen
     end
   end

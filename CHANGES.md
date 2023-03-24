@@ -1,3 +1,8 @@
+## 0.5.2 - 24-Mar-2022
+* Lots of rubocop updates and minor cleanup, including the addition of
+  rubocop and rubocop-rspec as deve dependencies.
+* Deprecation warning fixes (actually bug fixes for Ruby 3.2).
+
 ## 0.5.1 - 18-Dec-2020
 * Switch docs to markdown format because github isn't rendering rdoc properly.
 

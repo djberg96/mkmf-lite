@@ -12,7 +12,7 @@ module Mkmf
   # Mkmf module in the standard library.
   module Lite
     # The version of the mkmf-lite library
-    MKMF_LITE_VERSION = '0.5.1'
+    MKMF_LITE_VERSION = '0.5.2'
 
     private
 
