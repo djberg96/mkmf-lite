@@ -11,7 +11,7 @@ A light version of mkmf designed for use within programs.
 A C compiler somewhere on your system.
 
 ## Synopsis
-```
+```ruby
 require 'mkmf/lite'
 
 class System
