@@ -8,6 +8,7 @@
 require 'rubygems'
 require 'rspec'
 require 'mkmf/lite'
+require 'fileutils'
 
 RSpec.describe Mkmf::Lite do
   subject { Class.new{ |obj| obj.extend Mkmf::Lite } }
@@ -106,7 +107,7 @@ RSpec.describe Mkmf::Lite do
 
     example 'check_valueof returns an integer value' do
       value = subject.check_valueof(constant)
-      expect(value).to be_kind_of(Integer)
+      expect(value).to be_a(Integer)
       expect(value).to eq(-1)
     end
   end
@@ -132,7 +133,7 @@ RSpec.describe Mkmf::Lite do
 
     example 'check_sizeof returns an integer value' do
       size = subject.check_sizeof(st_type, st_header)
-      expect(size).to be_kind_of(Integer)
+      expect(size).to be_a(Integer)
       expect(size).to be > 0
     end
   end

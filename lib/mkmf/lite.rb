@@ -5,6 +5,7 @@ require 'rbconfig'
 require 'tmpdir'
 require 'open3'
 require 'ptools'
+require 'fileutils'
 
 # The Mkmf module serves as a namespace only.
 module Mkmf
@@ -208,8 +209,8 @@ module Mkmf
           end
         end
       ensure
-        File.delete(cpp_source_file) if File.exist?(cpp_source_file)
-        File.delete(cpp_out_file) if File.exist?(cpp_out_file)
+        FileUtils.rm_f(cpp_source_file)
+        FileUtils.rm_f(cpp_out_file)
         $stderr.reopen(stderr_orig)
         $stdout.reopen(stdout_orig)
       end
@@ -247,8 +248,8 @@ module Mkmf
           boolean = system(command)
         end
       ensure
-        File.delete(cpp_source_file) if File.exist?(cpp_source_file)
-        File.delete(cpp_out_file) if File.exist?(cpp_out_file)
+        FileUtils.rm_f(cpp_source_file)
+        FileUtils.rm_f(cpp_out_file)
         $stdout.reopen(stdout_orig)
         $stderr.reopen(stderr_orig)
       end
