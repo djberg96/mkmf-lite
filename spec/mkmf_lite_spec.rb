@@ -20,7 +20,7 @@ RSpec.describe Mkmf::Lite do
 
   describe 'constants' do
     example 'version information' do
-      expect(described_class::MKMF_LITE_VERSION).to eq('0.5.2')
+      expect(described_class::MKMF_LITE_VERSION).to eq('0.6.0')
       expect(described_class::MKMF_LITE_VERSION).to be_frozen
     end
   end
@@ -82,7 +82,7 @@ RSpec.describe Mkmf::Lite do
     end
 
     example 'have_struct_member accepts a maximum of three arguments' do
-      expect{ subject.have_struct_member('struct passwd', 'pw_name', 'pwd.h', true) }.to raise_error(ArgumentError)
+      expect{ subject.have_struct_member('struct passwd', 'pw_name', 'pwd.h', 1) }.to raise_error(ArgumentError)
     end
   end
 
