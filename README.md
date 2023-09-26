@@ -43,12 +43,12 @@ used in conjunction with FFI. Also, the source code is quite readable.
 It does not package C extensions, nor generate a log file or a Makefile. It
 does, however, require that you have a C compiler somewhere on your system.
 
+As of version 0.6.0 it memoizes the results of any checks that you make
+since they wouldn't ever change without requiring a reboot/restart of your
+server, container, etc, anyway.
+
 ## Known Issues
-You may see this warning from JRuby 1.4.x and earlier:
-
-warning: Useless use of a variable in void context.
-
-You can ignore these (or, upgrade your Jruby).
+Very old versions of JRuby will emit a warning. You should upgrade.
 
 ## License
 Apache-2.0

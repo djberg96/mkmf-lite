@@ -1,3 +1,7 @@
+## 0.6.0 - 26-Sep-2023
+* Added the memoist gem and memoized the results of all public methods since
+  the odds of them changing between calls is basically zero.
+
 ## 0.5.2 - 24-Mar-2023
 * Lots of rubocop updates and minor cleanup, including the addition of
   rubocop and rubocop-rspec as deve dependencies.

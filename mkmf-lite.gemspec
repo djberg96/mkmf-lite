@@ -3,7 +3,7 @@ require 'rubygems'
 Gem::Specification.new do |spec|
   spec.name       = 'mkmf-lite'
   spec.summary    = 'A lighter version of mkmf designed for use as a library'
-  spec.version    = '0.5.2'
+  spec.version    = '0.6.0'
   spec.author     = 'Daniel J. Berger'
   spec.license    = 'Apache-2.0'
   spec.email      = 'djberg96@gmail.com'
@@ -13,6 +13,8 @@ Gem::Specification.new do |spec|
   spec.cert_chain = ['certs/djberg96_pub.pem']
 
   spec.add_dependency('ptools', '~> 1.4')
+  spec.add_dependency('memoist', '~> 0.16.2')
+
   spec.add_development_dependency('rake')
   spec.add_development_dependency('rspec', '~> 3.9')
   spec.add_development_dependency('rubocop')

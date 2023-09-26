@@ -6,14 +6,17 @@ require 'tmpdir'
 require 'open3'
 require 'ptools'
 require 'fileutils'
+require 'memoist'
 
 # The Mkmf module serves as a namespace only.
 module Mkmf
   # The Lite module scopes the Mkmf module to differentiate it from the
   # Mkmf module in the standard library.
   module Lite
+    extend Memoist
+
     # The version of the mkmf-lite library
-    MKMF_LITE_VERSION = '0.5.2'
+    MKMF_LITE_VERSION = '0.6.0'
 
     private
 
@@ -24,6 +27,8 @@ module Mkmf
       command
     end
     # rubocop:enable Layout/LineLength
+
+    memoize :cpp_command
 
     def cpp_source_file
       'conftest.c'
@@ -37,6 +42,8 @@ module Mkmf
       end
     end
 
+    memoize :cpp_out_file
+
     # TODO: We should adjust this based on OS. For now we're using
     # arguments I think you'll typically see set on Linux and BSD.
     def cpp_libraries
@@ -46,6 +53,8 @@ module Mkmf
         '-lrt -ldl -lcrypt -lm'
       end
     end
+
+    memoize :cpp_libraries
 
     public
 
@@ -69,6 +78,8 @@ module Mkmf
       try_to_compile(code, options)
     end
 
+    memoize :have_header
+
     # Check for the presence of the given +function+ in the common header
     # files, or within any +headers+ that you provide.
     #
@@ -88,6 +99,8 @@ module Mkmf
       try_to_compile(ptr_code) || try_to_compile(std_code)
     end
 
+    memoize :have_func
+
     # Checks whether or not the struct of type +struct_type+ contains the
     # +struct_member+. If it does not, or the struct type cannot be found,
     # then false is returned.
@@ -103,6 +116,8 @@ module Mkmf
       try_to_compile(code)
     end
 
+    memoize :have_struct_member
+
     # Returns the value of the given +constant+ (which could also be a macro)
     # using +headers+, or common headers if no headers are specified.
     #
@@ -116,6 +131,8 @@ module Mkmf
 
       try_to_execute(code)
     end
+
+    memoize :check_valueof
 
     # Returns the sizeof +type+ using +headers+, or common headers if no
     # headers are specified.
@@ -137,6 +154,8 @@ module Mkmf
 
       try_to_execute(code)
     end
+
+    memoize :check_sizeof
 
     private
 
