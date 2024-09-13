@@ -16,9 +16,13 @@ module Mkmf
     extend Memoist
 
     # The version of the mkmf-lite library
-    MKMF_LITE_VERSION = '0.6.0'
+    MKMF_LITE_VERSION = '0.7.0'
 
     private
+
+    def cpp_defs
+      RbConfig::CONFIG['DEFS']
+    end
 
     # rubocop:disable Layout/LineLength
     def cpp_command
@@ -205,7 +209,7 @@ module Mkmf
         Dir.chdir(Dir.tmpdir) do
           File.write(cpp_source_file, code)
 
-          command  = "#{cpp_command} "
+          command  = "#{cpp_command} #{cpp_libraries} #{cpp_defs} "
           command += "#{cpp_out_file} "
           command += cpp_source_file
 
@@ -254,9 +258,9 @@ module Mkmf
           File.write(cpp_source_file, code)
 
           if command_options
-            command  = "#{cpp_command} #{command_options} "
+            command  = "#{cpp_command} #{command_options} #{cpp_libraries} #{cpp_defs} "
           else
-            command  = "#{cpp_command} "
+            command  = "#{cpp_command} #{cpp_libraries} #{cpp_defs} "
           end
 
           command += "#{cpp_out_file} "
