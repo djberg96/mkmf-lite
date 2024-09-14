@@ -49,14 +49,12 @@ module Mkmf
     memoize :cpp_out_file
 
     def cpp_libraries
-      if RbConfig::CONFIG['LIBS']
-        RbConfig::CONFIG['LIBS'] + RbConfig::CONFIG['LIBRUBYARG']
+      return if File::ALT_SEPARATOR && RbConfig::CONFIG['CPP'] =~ /^cl/
+
+      if cpp_command =~ /clang/i
+        '-Lrt -Ldl -Lcrypt -Lm'
       else
-        if cpp_command =~ /clang/i
-          '-Lrt -Ldl -Lcrypt -Lm'
-        else
-          '-lrt -ldl -lcrypt -lm'
-        end
+        '-lrt -ldl -lcrypt -lm'
       end
     end
 
