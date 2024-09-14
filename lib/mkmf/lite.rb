@@ -51,7 +51,7 @@ module Mkmf
     # TODO: We should adjust this based on OS. For now we're using
     # arguments I think you'll typically see set on Linux and BSD.
     def cpp_libraries
-      if RbConfig::CONFIG['LIBS']
+      if RbConfig::CONFIG['LIBS'] && RbConfig::CONFIG['host_os'] =~ /linux/i
         RbConfig::CONFIG['LIBS'] + RbConfig::CONFIG['LIBRUBYARG']
       else
         '-lrt -ldl -lcrypt -lm'
