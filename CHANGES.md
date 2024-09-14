@@ -1,11 +1,9 @@
 ## 0.7.0 - 13-Sep-2024
-* Append library switches to compiler command. By default this will be a
-  combination of LIB and LIBRUBYARG. If those aren't present, then a series
-  of basic switches are used instead. This method was already in the code
-  but I apparently decided not to use it. Now I am.
+* Append typical library switches to the compiler command. There was a private
+  method already in the code but I wasn't using it.
 * Append DEFS if present in your RbConfig options. This was mainly to ensure
-  that FILE_OFFSET_BITS was passed, if present, but there could be other
-  switches in theory.
+  that FILE_OFFSET_BITS is passed, if present, but there could be other
+  macros in theory.
 
 ## 0.6.0 - 26-Sep-2023
 * Added the memoist gem and memoized the results of all public methods since
