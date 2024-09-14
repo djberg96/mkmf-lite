@@ -16,9 +16,13 @@ module Mkmf
     extend Memoist
 
     # The version of the mkmf-lite library
-    MKMF_LITE_VERSION = '0.6.0'
+    MKMF_LITE_VERSION = '0.7.0'
 
     private
+
+    def cpp_defs
+      RbConfig::CONFIG['DEFS']
+    end
 
     # rubocop:disable Layout/LineLength
     def cpp_command
@@ -44,11 +48,11 @@ module Mkmf
 
     memoize :cpp_out_file
 
-    # TODO: We should adjust this based on OS. For now we're using
-    # arguments I think you'll typically see set on Linux and BSD.
     def cpp_libraries
-      if RbConfig::CONFIG['LIBS']
-        RbConfig::CONFIG['LIBS'] + RbConfig::CONFIG['LIBRUBYARG']
+      return if File::ALT_SEPARATOR && RbConfig::CONFIG['CPP'] =~ /^cl/
+
+      if cpp_command =~ /clang/i
+        '-Lrt -Ldl -Lcrypt -Lm'
       else
         '-lrt -ldl -lcrypt -lm'
       end
@@ -205,7 +209,7 @@ module Mkmf
         Dir.chdir(Dir.tmpdir) do
           File.write(cpp_source_file, code)
 
-          command  = "#{cpp_command} "
+          command  = "#{cpp_command} #{cpp_libraries} #{cpp_defs} "
           command += "#{cpp_out_file} "
           command += cpp_source_file
 
@@ -254,9 +258,9 @@ module Mkmf
           File.write(cpp_source_file, code)
 
           if command_options
-            command  = "#{cpp_command} #{command_options} "
+            command  = "#{cpp_command} #{command_options} #{cpp_libraries} #{cpp_defs} "
           else
-            command  = "#{cpp_command} "
+            command  = "#{cpp_command} #{cpp_libraries} #{cpp_defs} "
           end
 
           command += "#{cpp_out_file} "
