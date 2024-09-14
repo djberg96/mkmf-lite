@@ -54,7 +54,11 @@ module Mkmf
       if RbConfig::CONFIG['LIBS'] && RbConfig::CONFIG['host_os'] =~ /linux/i
         RbConfig::CONFIG['LIBS'] + RbConfig::CONFIG['LIBRUBYARG']
       else
-        '-lrt -ldl -lcrypt -lm'
+        if cpp_command =~ /clang/i
+          '-Lrt -Ldl -Lcrypt -Lm'
+        else
+          '-lrt -ldl -lcrypt -lm'
+        end
       end
     end
 
