@@ -16,13 +16,19 @@ module Mkmf
     extend Memoist
 
     # The version of the mkmf-lite library
-    MKMF_LITE_VERSION = '0.7.0'
+    MKMF_LITE_VERSION = '0.7.1'
 
     private
 
     def cpp_defs
       RbConfig::CONFIG['DEFS']
     end
+
+    def jruby?
+      defined?(JRUBY_VERSION) ? true : false
+    end
+
+    memoize :jruby?
 
     # rubocop:disable Layout/LineLength
     def cpp_command
@@ -50,6 +56,7 @@ module Mkmf
 
     def cpp_libraries
       return if File::ALT_SEPARATOR && RbConfig::CONFIG['CPP'] =~ /^cl/
+      return if jruby?
 
       if cpp_command =~ /clang/i
         '-Lrt -Ldl -Lcrypt -Lm'
