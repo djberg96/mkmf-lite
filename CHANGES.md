@@ -1,3 +1,6 @@
+## 0.7.1 - 29-Sep-2024
+* Skip adding compiler switches for JRuby, which chokes on them for some reason.
+
 ## 0.7.0 - 13-Sep-2024
 * Append typical library switches to the compiler command. There was a private
   method already in the code but I wasn't using it.

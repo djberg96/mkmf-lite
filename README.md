@@ -48,13 +48,13 @@ since they wouldn't ever change without requiring a reboot/restart of your
 server, container, etc, anyway.
 
 ## Known Issues
-Very old versions of JRuby will emit a warning. You should upgrade.
+JRuby may emit warnings on some platforms.
 
 ## License
 Apache-2.0
 
 ## Copyright
-(C) 2010-2023 Daniel J. Berger
+(C) 2010-2024 Daniel J. Berger
 All Rights Reserved
 
 ## Warranty
