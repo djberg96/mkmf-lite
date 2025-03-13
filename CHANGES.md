@@ -1,3 +1,6 @@
+## 0.7.2 - 13-Mar-2025
+* Allow option of adding directories to check_sizeof and check_valueof methods.
+
 ## 0.7.1 - 29-Sep-2024
 * Skip adding compiler switches for JRuby, which chokes on them for some reason.
 

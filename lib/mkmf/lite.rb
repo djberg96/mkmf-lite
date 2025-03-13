@@ -16,7 +16,7 @@ module Mkmf
     extend Memoist
 
     # The version of the mkmf-lite library
-    MKMF_LITE_VERSION = '0.7.1'
+    MKMF_LITE_VERSION = '0.7.2'
 
     private
 
@@ -135,12 +135,20 @@ module Mkmf
     # If this method fails an error is raised. This could happen if the constant
     # can't be found and/or the header files do not include the indicated constant.
     #
-    def check_valueof(constant, headers = [])
+    def check_valueof(constant, headers = [], *directories)
       headers = get_header_string(headers)
       erb = ERB.new(read_template('check_valueof.erb'))
       code = erb.result(binding)
 
-      try_to_execute(code)
+      if directories.empty?
+        options = nil
+      else
+        options = ''
+        directories.each{ |dir| options += "-I#{dir} " }
+        options.rstrip!
+      end
+
+      try_to_execute(code, options)
     end
 
     memoize :check_valueof
@@ -158,12 +166,20 @@ module Mkmf
     #     utsname = check_sizeof('struct utsname', 'sys/utsname.h')
     #   end
     #
-    def check_sizeof(type, headers = [])
+    def check_sizeof(type, headers = [], *directories)
       headers = get_header_string(headers)
       erb = ERB.new(read_template('check_sizeof.erb'))
       code = erb.result(binding)
 
-      try_to_execute(code)
+      if directories.empty?
+        options = nil
+      else
+        options = ''
+        directories.each{ |dir| options += "-I#{dir} " }
+        options.rstrip!
+      end
+
+      try_to_execute(code, options)
     end
 
     memoize :check_sizeof
@@ -206,7 +222,7 @@ module Mkmf
     # we don't actually care about the reason for failure, though a Ruby
     # error is raised if the compilation step fails.
     #
-    def try_to_execute(code)
+    def try_to_execute(code, command_options = nil)
       begin
         result = 0
 
@@ -216,7 +232,12 @@ module Mkmf
         Dir.chdir(Dir.tmpdir) do
           File.write(cpp_source_file, code)
 
-          command  = "#{cpp_command} #{cpp_libraries} #{cpp_defs} "
+          if command_options
+            command  = "#{cpp_command} #{command_options} #{cpp_libraries} #{cpp_defs} "
+          else
+            command  = "#{cpp_command} #{cpp_libraries} #{cpp_defs} "
+          end
+
           command += "#{cpp_out_file} "
           command += cpp_source_file
 
