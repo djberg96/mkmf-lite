@@ -20,7 +20,7 @@ RSpec.describe Mkmf::Lite do
 
   describe 'constants' do
     example 'version information' do
-      expect(described_class::MKMF_LITE_VERSION).to eq('0.7.1')
+      expect(described_class::MKMF_LITE_VERSION).to eq('0.7.2')
       expect(described_class::MKMF_LITE_VERSION).to be_frozen
     end
   end
@@ -96,8 +96,8 @@ RSpec.describe Mkmf::Lite do
       expect{ subject.check_valueof }.to raise_error(ArgumentError)
     end
 
-    example 'check_valueof accepts a maximum of two arguments' do
-      expect{ subject.check_valueof(constant, 'stdio.h', 1) }.to raise_error(ArgumentError)
+    example 'check_valueof accepts directory arguments' do
+      expect{ subject.check_valueof(constant, 'stdio.h', ['/usr/include']) }.not_to raise_error
     end
 
     example 'check_valueof works with one or two arguments' do
@@ -122,8 +122,8 @@ RSpec.describe Mkmf::Lite do
       expect{ subject.check_sizeof }.to raise_error(ArgumentError)
     end
 
-    example 'check_sizeof accepts a maximum of two arguments' do
-      expect{ subject.check_sizeof('div_t', 'stdlib.h', 1) }.to raise_error(ArgumentError)
+    example 'check_sizeof accepts directory arguments' do
+      expect{ subject.check_sizeof('div_t', 'stdlib.h', ['/usr/include']) }.not_to raise_error
     end
 
     example 'check_sizeof works with one or two arguments' do
