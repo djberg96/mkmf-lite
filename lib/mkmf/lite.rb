@@ -16,7 +16,7 @@ module Mkmf
     extend Memoist
 
     # The version of the mkmf-lite library
-    MKMF_LITE_VERSION = '0.7.2'
+    MKMF_LITE_VERSION = '0.7.3'
 
     private
 

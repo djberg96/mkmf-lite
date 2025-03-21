@@ -1,3 +1,6 @@
+## 0.7.3 - 21-Mar-2025
+* Add check_offsetof method.
+
 ## 0.7.2 - 13-Mar-2025
 * Allow option of adding directories to check_sizeof and check_valueof methods.
 
