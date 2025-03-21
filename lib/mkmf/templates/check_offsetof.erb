@@ -1,0 +1,11 @@
+#include <stdio.h>
+#include <stddef.h>
+
+<%= headers %>
+
+int conftest_const = (int)(offsetof(<%= struct_type %>, <%= field %>));
+
+int main(){
+  printf("%d\n", conftest_const);
+  return 0;
+}
