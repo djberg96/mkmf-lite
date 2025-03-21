@@ -184,6 +184,38 @@ module Mkmf
 
     memoize :check_sizeof
 
+    # Returns the offset of +field+ within +struct_type+ using +headers+,
+    # or common headers, plus stddef.h, if no headers are specified.
+    #
+    # If this method fails an error is raised. This could happen if the field
+    # can't be found and/or the header files do not include the indicated type.
+    # It will also fail if the field is a bit field.
+    #
+    # Example:
+    #
+    #   class Foo
+    #     include Mkmf::Lite
+    #     utsname = check_offsetof('struct utsname', 'release', 'sys/utsname.h')
+    #   end
+    #
+    def check_offsetof(struct_type, field, headers = [], *directories)
+      headers = get_header_string(headers)
+      erb = ERB.new(read_template('check_offsetof.erb'))
+      code = erb.result(binding)
+
+      if directories.empty?
+        options = nil
+      else
+        options = ''
+        directories.each{ |dir| options += "-I#{dir} " }
+        options.rstrip!
+      end
+
+      try_to_execute(code, options)
+    end
+
+    memoize :check_offsetof
+
     private
 
     # Take an array of header file names (or convert it to an array if it's a

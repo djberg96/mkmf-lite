@@ -112,6 +112,33 @@ RSpec.describe Mkmf::Lite do
     end
   end
 
+  context 'check_offsetof' do
+    let(:st_field){ 'st_dev' }
+
+    example 'check_offsetof basic functionality' do
+      expect(subject).to respond_to(:check_offsetof)
+      expect{ subject.check_offsetof(st_type, st_field, st_header) }.not_to raise_error
+    end
+
+    example 'check_offsetof requires at least two arguments' do
+      expect{ subject.check_offsetof }.to raise_error(ArgumentError)
+      expect{ subject.check_offsetof(st_type) }.to raise_error(ArgumentError)
+    end
+
+    example 'check_offsetof accepts directory arguments' do
+      expect{ subject.check_offsetof(st_type, st_field, [st_header, 'stdlib.h'], ['/usr/include']) }.not_to raise_error
+    end
+
+    example 'check_offsetof returns an integer value' do
+      size1 = subject.check_offsetof(st_type, st_field, st_header)
+      size2 = subject.check_offsetof(st_type, 'st_ino', st_header)
+      expect(size1).to be_a(Integer)
+      expect(size2).to be_a(Integer)
+      expect(size1).to eq(0)
+      expect(size2).to be > size1
+    end
+  end
+
   context 'check_sizeof' do
     example 'check_sizeof basic functionality' do
       expect(subject).to respond_to(:check_sizeof)
