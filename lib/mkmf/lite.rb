@@ -25,15 +25,22 @@ module Mkmf
     end
 
     def jruby?
-      defined?(JRUBY_VERSION) ? true : false
+      defined?(JRUBY_VERSION)
     end
 
     memoize :jruby?
 
+    def windows_with_cl_compiler?
+      File::ALT_SEPARATOR && RbConfig::CONFIG['CPP']&.match?(/^cl/)
+    end
+
+    memoize :windows_with_cl_compiler?
+
     # rubocop:disable Layout/LineLength
     def cpp_command
       command = RbConfig::CONFIG['CC'] || RbConfig::CONFIG['CPP'] || File.which('cc') || File.which('gcc') || File.which('cl')
-      raise 'Compiler not found' unless command
+      raise StandardError, 'Compiler not found' unless command
+
       command
     end
     # rubocop:enable Layout/LineLength
@@ -45,7 +52,7 @@ module Mkmf
     end
 
     def cpp_out_file
-      if File::ALT_SEPARATOR && RbConfig::CONFIG['CPP'] =~ /^cl/
+      if windows_with_cl_compiler?
         '/Feconftest.exe'
       else
         '-o conftest.exe'
@@ -55,10 +62,9 @@ module Mkmf
     memoize :cpp_out_file
 
     def cpp_libraries
-      return if File::ALT_SEPARATOR && RbConfig::CONFIG['CPP'] =~ /^cl/
-      return if jruby?
+      return nil if windows_with_cl_compiler? || jruby?
 
-      if cpp_command =~ /clang/i
+      if cpp_command.match?(/clang/i)
         '-Lrt -Ldl -Lcrypt -Lm'
       else
         '-lrt -ldl -lcrypt -lm'
@@ -77,14 +83,7 @@ module Mkmf
     def have_header(header, *directories)
       erb = ERB.new(read_template('have_header.erb'))
       code = erb.result(binding)
-
-      if directories.empty?
-        options = nil
-      else
-        options = ''
-        directories.each{ |dir| options += "-I#{dir} " }
-        options.rstrip!
-      end
+      options = build_directory_options(directories)
 
       try_to_compile(code, options)
     end
@@ -139,14 +138,7 @@ module Mkmf
       headers = get_header_string(headers)
       erb = ERB.new(read_template('check_valueof.erb'))
       code = erb.result(binding)
-
-      if directories.empty?
-        options = nil
-      else
-        options = ''
-        directories.each{ |dir| options += "-I#{dir} " }
-        options.rstrip!
-      end
+      options = build_directory_options(directories)
 
       try_to_execute(code, options)
     end
@@ -170,14 +162,7 @@ module Mkmf
       headers = get_header_string(headers)
       erb = ERB.new(read_template('check_sizeof.erb'))
       code = erb.result(binding)
-
-      if directories.empty?
-        options = nil
-      else
-        options = ''
-        directories.each{ |dir| options += "-I#{dir} " }
-        options.rstrip!
-      end
+      options = build_directory_options(directories)
 
       try_to_execute(code, options)
     end
@@ -202,14 +187,7 @@ module Mkmf
       headers = get_header_string(headers)
       erb = ERB.new(read_template('check_offsetof.erb'))
       code = erb.result(binding)
-
-      if directories.empty?
-        options = nil
-      else
-        options = ''
-        directories.each{ |dir| options += "-I#{dir} " }
-        options.rstrip!
-      end
+      options = build_directory_options(directories)
 
       try_to_execute(code, options)
     end
@@ -217,6 +195,38 @@ module Mkmf
     memoize :check_offsetof
 
     private
+
+    def build_directory_options(directories)
+      return nil if directories.empty?
+
+      directories.map { |dir| "-I#{dir}" }.join(' ')
+    end
+
+    def build_compile_command(command_options = nil)
+      command_parts = [cpp_command]
+      command_parts << command_options if command_options
+      command_parts << cpp_libraries if cpp_libraries
+      command_parts << cpp_defs
+      command_parts << cpp_out_file
+      command_parts << cpp_source_file
+
+      command_parts.compact.join(' ')
+    end
+
+    def with_suppressed_output
+      stderr_orig = $stderr.dup
+      stdout_orig = $stdout.dup
+
+      $stderr.reopen(IO::NULL)
+      $stdout.reopen(IO::NULL)
+
+      yield
+    ensure
+      $stderr.reopen(stderr_orig)
+      $stdout.reopen(stdout_orig)
+      stderr_orig.close
+      stdout_orig.close
+    end
 
     # Take an array of header file names (or convert it to an array if it's a
     # single argument), add the COMMON_HEADERS, flatten it out and remove any
@@ -228,21 +238,20 @@ module Mkmf
     # This string is then to be used at the top of the ERB templates.
     #
     def get_header_string(headers)
-      headers = [headers] unless headers.is_a?(Array)
+      headers = Array(headers)
 
       common_headers = RbConfig::CONFIG['COMMON_HEADERS']
 
       if common_headers.nil? || common_headers.empty?
         if headers.empty?
           headers = ['stdio.h', 'stdlib.h']
-          headers += 'windows.h' if File::ALT_SEPARATOR
+          headers << 'windows.h' if File::ALT_SEPARATOR
         end
       else
         headers += common_headers.split
       end
 
-      headers = headers.flatten.uniq
-      headers.map{ |h| "#include <#{h}>" }.join("\n")
+      headers.flatten.uniq.map { |h| "#include <#{h}>" }.join("\n")
     end
 
     # Create a temporary bit of C source code in the temp directory, and
@@ -255,50 +264,32 @@ module Mkmf
     # error is raised if the compilation step fails.
     #
     def try_to_execute(code, command_options = nil)
-      begin
-        result = 0
+      result = 0
 
-        stderr_orig = $stderr.dup
-        stdout_orig = $stdout.dup
+      Dir.chdir(Dir.tmpdir) do
+        File.write(cpp_source_file, code)
+        command = build_compile_command(command_options)
 
-        Dir.chdir(Dir.tmpdir) do
-          File.write(cpp_source_file, code)
+        compilation_successful = with_suppressed_output { system(command) }
 
-          if command_options
-            command  = "#{cpp_command} #{command_options} #{cpp_libraries} #{cpp_defs} "
-          else
-            command  = "#{cpp_command} #{cpp_libraries} #{cpp_defs} "
+        if compilation_successful
+          conftest = File::ALT_SEPARATOR ? 'conftest.exe' : './conftest.exe'
+
+          Open3.popen3(conftest) do |stdin, stdout, stderr|
+            stdin.close
+            stderr.close
+            output = stdout.gets
+            result = output&.chomp&.to_i || 0
           end
-
-          command += "#{cpp_out_file} "
-          command += cpp_source_file
-
-          # Temporarily close these
-          $stderr.reopen(IO::NULL)
-          $stdout.reopen(IO::NULL)
-
-          if system(command)
-            $stdout.reopen(stdout_orig) # We need this back for open3 to work.
-
-            conftest = File::ALT_SEPARATOR ? 'conftest.exe' : './conftest.exe'
-
-            Open3.popen3(conftest) do |stdin, stdout, stderr|
-              stdin.close
-              stderr.close
-              result = stdout.gets.chomp.to_i
-            end
-          else
-            raise "Failed to compile source code with command '#{command}':\n===\n#{code}==="
-          end
+        else
+          raise StandardError, "Failed to compile source code with command '#{command}':\n===\n#{code}==="
         end
-      ensure
-        FileUtils.rm_f(cpp_source_file)
-        FileUtils.rm_f(cpp_out_file)
-        $stderr.reopen(stderr_orig)
-        $stdout.reopen(stdout_orig)
       end
 
       result
+    ensure
+      FileUtils.rm_f(File.join(Dir.tmpdir, cpp_source_file))
+      FileUtils.rm_f(File.join(Dir.tmpdir, 'conftest.exe'))
     end
 
     # Create a temporary bit of C source code in the temp directory, and
@@ -309,35 +300,15 @@ module Mkmf
     # we don't actually care about the reason for failure.
     #
     def try_to_compile(code, command_options = nil)
-      begin
-        boolean = false
-        stderr_orig = $stderr.dup
-        stdout_orig = $stdout.dup
+      Dir.chdir(Dir.tmpdir) do
+        File.write(cpp_source_file, code)
+        command = build_compile_command(command_options)
 
-        Dir.chdir(Dir.tmpdir) do
-          File.write(cpp_source_file, code)
-
-          if command_options
-            command  = "#{cpp_command} #{command_options} #{cpp_libraries} #{cpp_defs} "
-          else
-            command  = "#{cpp_command} #{cpp_libraries} #{cpp_defs} "
-          end
-
-          command += "#{cpp_out_file} "
-          command += cpp_source_file
-
-          $stderr.reopen(IO::NULL)
-          $stdout.reopen(IO::NULL)
-          boolean = system(command)
-        end
-      ensure
-        FileUtils.rm_f(cpp_source_file)
-        FileUtils.rm_f(cpp_out_file)
-        $stdout.reopen(stdout_orig)
-        $stderr.reopen(stderr_orig)
+        with_suppressed_output { system(command) }
       end
-
-      boolean
+    ensure
+      FileUtils.rm_f(File.join(Dir.tmpdir, cpp_source_file))
+      FileUtils.rm_f(File.join(Dir.tmpdir, 'conftest.exe'))
     end
 
     # Slurp the contents of the template file for evaluation later.
