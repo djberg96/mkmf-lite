@@ -164,4 +164,34 @@ RSpec.describe Mkmf::Lite do
       expect(size).to be > 0
     end
   end
+
+  context 'have_library' do
+    example 'have_library basic functionality' do
+      expect(subject).to respond_to(:have_library)
+    end
+
+    example 'have_library returns expected boolean value' do
+      expect(subject.have_library('c')).to be(true)
+      expect(subject.have_library('m')).to be(true)
+      expect(subject.have_library('nonexistent_library_xyz')).to be(false)
+    end
+
+    example 'have_library with function argument returns expected boolean value' do
+      expect(subject.have_library('m', 'sqrt')).to be(true)
+      expect(subject.have_library('m', 'nonexistent_function_xyz')).to be(false)
+    end
+
+    example 'have_library with headers argument works correctly' do
+      expect{ subject.have_library('m', 'sqrt', 'math.h') }.not_to raise_error
+      expect(subject.have_library('m', 'sqrt', 'math.h')).to be(true)
+    end
+
+    example 'have_library requires at least one argument' do
+      expect{ subject.have_library }.to raise_error(ArgumentError)
+    end
+
+    example 'have_library accepts a maximum of three arguments' do
+      expect{ subject.have_library('m', 'sqrt', 'math.h', 'bogus') }.to raise_error(ArgumentError)
+    end
+  end
 end

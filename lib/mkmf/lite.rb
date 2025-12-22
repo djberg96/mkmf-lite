@@ -111,6 +111,30 @@ module Mkmf
 
     memoize :have_func
 
+    # Check for the presence of the given +library+. You may optionally
+    # provide a +function+ name to check for within that library, as well
+    # as any additional +headers+.
+    #
+    # Returns true if the library can be linked, or false otherwise.
+    #
+    def have_library(library, function = nil, headers = [])
+      headers = get_header_string(headers)
+      erb = ERB.new(read_template('have_library.erb'))
+      code = erb.result(binding)
+
+      # Build link options with the library
+      link_options = windows_with_cl_compiler? ? "#{library}.lib" : "-l#{library}"
+
+      # If a function is specified, try to use it in the code
+      if function
+        code = code.sub('int main(){', "extern void #{function}();\n\nint main(){\n  #{function}();")
+      end
+
+      try_to_compile(code, link_options)
+    end
+
+    memoize :have_library
+
     # Checks whether or not the struct of type +struct_type+ contains the
     # +struct_member+. If it does not, or the struct type cannot be found,
     # then false is returned.
