@@ -16,7 +16,7 @@ module Mkmf
     extend Memoist
 
     # The version of the mkmf-lite library
-    MKMF_LITE_VERSION = '0.7.3'
+    MKMF_LITE_VERSION = '0.7.4'
 
     private
 
@@ -111,6 +111,25 @@ module Mkmf
 
     memoize :have_func
 
+    # Check for the presence of the given +library+. You may optionally
+    # provide a +function+ name to check for within that library, as well
+    # as any additional +headers+.
+    #
+    # Returns true if the library can be linked, or false otherwise.
+    #
+    def have_library(library, function = nil, headers = [])
+      headers = get_header_string(headers)
+      erb = ERB.new(read_template('have_library.erb'))
+      code = erb.result(binding)
+
+      # Build link options with the library
+      link_options = windows_with_cl_compiler? ? "#{library}.lib" : "-l#{library}"
+
+      try_to_compile(code, nil, link_options)
+    end
+
+    memoize :have_library
+
     # Checks whether or not the struct of type +struct_type+ contains the
     # +struct_member+. If it does not, or the struct type cannot be found,
     # then false is returned.
@@ -202,13 +221,14 @@ module Mkmf
       directories.map { |dir| "-I#{dir}" }.join(' ')
     end
 
-    def build_compile_command(command_options = nil)
+    def build_compile_command(command_options = nil, library_options = nil)
       command_parts = [cpp_command]
       command_parts << command_options if command_options
       command_parts << cpp_libraries if cpp_libraries
       command_parts << cpp_defs
       command_parts << cpp_out_file
       command_parts << cpp_source_file
+      command_parts << library_options if library_options
 
       command_parts.compact.join(' ')
     end
@@ -299,10 +319,10 @@ module Mkmf
     # Note that $stderr is temporarily redirected to the null device because
     # we don't actually care about the reason for failure.
     #
-    def try_to_compile(code, command_options = nil)
+    def try_to_compile(code, command_options = nil, library_options = nil)
       Dir.chdir(Dir.tmpdir) do
         File.write(cpp_source_file, code)
-        command = build_compile_command(command_options)
+        command = build_compile_command(command_options, library_options)
 
         with_suppressed_output { system(command) }
       end
