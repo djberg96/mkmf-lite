@@ -125,7 +125,7 @@ module Mkmf
       # Build link options with the library
       link_options = windows_with_cl_compiler? ? "#{library}.lib" : "-l#{library}"
 
-      try_to_compile(code, link_options)
+      try_to_compile(code, nil, link_options)
     end
 
     memoize :have_library
@@ -221,13 +221,14 @@ module Mkmf
       directories.map { |dir| "-I#{dir}" }.join(' ')
     end
 
-    def build_compile_command(command_options = nil)
+    def build_compile_command(command_options = nil, library_options = nil)
       command_parts = [cpp_command]
       command_parts << command_options if command_options
       command_parts << cpp_libraries if cpp_libraries
       command_parts << cpp_defs
       command_parts << cpp_out_file
       command_parts << cpp_source_file
+      command_parts << library_options if library_options
 
       command_parts.compact.join(' ')
     end
@@ -318,10 +319,10 @@ module Mkmf
     # Note that $stderr is temporarily redirected to the null device because
     # we don't actually care about the reason for failure.
     #
-    def try_to_compile(code, command_options = nil)
+    def try_to_compile(code, command_options = nil, library_options = nil)
       Dir.chdir(Dir.tmpdir) do
         File.write(cpp_source_file, code)
-        command = build_compile_command(command_options)
+        command = build_compile_command(command_options, library_options)
 
         with_suppressed_output { system(command) }
       end
