@@ -119,16 +119,17 @@ module Mkmf
     #
     def have_library(library, function = nil, headers = [])
       headers = get_header_string(headers)
-      erb = ERB.new(read_template('have_library.erb'))
-      code = erb.result(binding)
+
+      # If a function is specified, generate code that references it
+      if function
+        code = "#{headers}\n\nint main(){\n  void *p = (void *)&#{function};\n  return !p;\n}\n"
+      else
+        erb = ERB.new(read_template('have_library.erb'))
+        code = erb.result(binding)
+      end
 
       # Build link options with the library
       link_options = windows_with_cl_compiler? ? "#{library}.lib" : "-l#{library}"
-
-      # If a function is specified, try to use it in the code
-      if function
-        code = code.sub('int main(){', "extern void #{function}();\n\nint main(){\n  #{function}();")
-      end
 
       try_to_compile(code, link_options)
     end

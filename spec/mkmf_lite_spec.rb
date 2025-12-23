@@ -177,8 +177,8 @@ RSpec.describe Mkmf::Lite do
     end
 
     example 'have_library with function argument returns expected boolean value' do
-      expect(subject.have_library('m', 'sqrt')).to be(true)
-      expect(subject.have_library('m', 'nonexistent_function_xyz')).to be(false)
+      expect(subject.have_library('m', 'sqrt', 'math.h')).to be(true)
+      expect(subject.have_library('m', 'nonexistent_function_xyz', 'math.h')).to be(false)
     end
 
     example 'have_library with headers argument works correctly' do
