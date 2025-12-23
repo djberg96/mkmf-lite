@@ -73,6 +73,22 @@ module Mkmf
 
     memoize :cpp_libraries
 
+    def cpp_library_paths
+      paths = []
+
+      # Add Homebrew library paths on macOS
+      if RbConfig::CONFIG['host_os'].match?(/darwin/)
+        # Apple Silicon Macs
+        paths << '-L/opt/homebrew/lib' if File.directory?('/opt/homebrew/lib')
+        # Intel Macs
+        paths << '-L/usr/local/lib' if File.directory?('/usr/local/lib')
+      end
+
+      paths.empty? ? nil : paths.join(' ')
+    end
+
+    memoize :cpp_library_paths
+
     public
 
     # Check for the presence of the given +header+ file. You may optionally
@@ -117,7 +133,14 @@ module Mkmf
     #
     # Returns true if the library can be linked, or false otherwise.
     #
+    # Note: The library name should not include the 'lib' prefix or file
+    # extension. For example, use 'xerces-c' not 'libxerces-c' or 'libxerces-c.dylib'.
+    # However, if the 'lib' prefix is provided, it will be automatically stripped.
+    #
     def have_library(library, function = nil, headers = [])
+      # Strip 'lib' prefix if present (e.g., 'libxerces-c' -> 'xerces-c')
+      library = library.sub(/^lib/, '') unless windows_with_cl_compiler?
+
       headers = get_header_string(headers)
       erb = ERB.new(read_template('have_library.erb'))
       code = erb.result(binding)
@@ -224,6 +247,7 @@ module Mkmf
     def build_compile_command(command_options = nil, library_options = nil)
       command_parts = [cpp_command]
       command_parts << command_options if command_options
+      command_parts << cpp_library_paths if cpp_library_paths
       command_parts << cpp_libraries if cpp_libraries
       command_parts << cpp_defs
       command_parts << cpp_out_file
