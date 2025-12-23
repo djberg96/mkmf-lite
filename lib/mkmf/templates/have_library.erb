@@ -1,5 +1,10 @@
 <%= headers %>
 
 int main(){
+<% if function %>
+  void *p = (void *)&<%= function %>;
+  return !p;
+<% else %>
   return 0;
+<% end %>
 }
