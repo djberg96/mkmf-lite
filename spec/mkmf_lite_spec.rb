@@ -20,7 +20,7 @@ RSpec.describe Mkmf::Lite do
 
   describe 'constants' do
     example 'version information' do
-      expect(described_class::MKMF_LITE_VERSION).to eq('0.7.4')
+      expect(described_class::MKMF_LITE_VERSION).to eq('0.7.5')
       expect(described_class::MKMF_LITE_VERSION).to be_frozen
     end
   end

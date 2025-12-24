@@ -1,3 +1,7 @@
+## 0.7.5 - 24-Dec-2025
+* Automatically include homebrew lib for have_library on Macs.
+* Modified the have_library to work with or without leading "lib".
+
 ## 0.7.4 - 23-Dec-2025
 * Added have_library method.
 
