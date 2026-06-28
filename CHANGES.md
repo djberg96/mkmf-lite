@@ -3,6 +3,7 @@
 * Compile probes now use argv-style command execution and per-probe temporary
   directories.
 * Improved support for include directories with spaces.
+* Added FreeBSD CI coverage.
 * Updated RuboCop configuration for current rubocop-rspec.
 
 ## 0.7.5 - 24-Dec-2025
