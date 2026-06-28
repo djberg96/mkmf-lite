@@ -4,8 +4,8 @@ require 'erb'
 require 'rbconfig'
 require 'tmpdir'
 require 'open3'
+require 'shellwords'
 require 'ptools'
-require 'fileutils'
 require 'memoist'
 
 # The Mkmf module serves as a namespace only.
@@ -51,24 +51,16 @@ module Mkmf
       'conftest.c'
     end
 
-    def cpp_out_file
+    def cpp_out_file(output_file = 'conftest.exe')
       if windows_with_cl_compiler?
-        '/Feconftest.exe'
+        "/Fe#{output_file}"
       else
-        '-o conftest.exe'
+        ['-o', output_file]
       end
     end
 
-    memoize :cpp_out_file
-
     def cpp_libraries
-      return nil if windows_with_cl_compiler? || jruby?
-
-      if cpp_command.match?(/clang/i)
-        '-Lrt -Ldl -Lcrypt -Lm'
-      else
-        '-lrt -ldl -lcrypt -lm'
-      end
+      nil
     end
 
     memoize :cpp_libraries
@@ -84,7 +76,7 @@ module Mkmf
         paths << '-L/usr/local/lib' if File.directory?('/usr/local/lib')
       end
 
-      paths.empty? ? nil : paths.join(' ')
+      paths.empty? ? nil : paths
     end
 
     memoize :cpp_library_paths
@@ -241,35 +233,31 @@ module Mkmf
     def build_directory_options(directories)
       return nil if directories.empty?
 
-      directories.map { |dir| "-I#{dir}" }.join(' ')
+      directories.flatten.map { |dir| "-I#{dir}" }
     end
 
-    def build_compile_command(command_options = nil, library_options = nil)
-      command_parts = [cpp_command]
-      command_parts << command_options if command_options
-      command_parts << cpp_library_paths if cpp_library_paths
-      command_parts << cpp_libraries if cpp_libraries
-      command_parts << cpp_defs
-      command_parts << cpp_out_file
-      command_parts << cpp_source_file
-      command_parts << library_options if library_options
+    def build_compile_command(command_options = nil, library_options = nil, paths = {})
+      source_file = paths.fetch(:source_file, cpp_source_file)
+      output_file = paths.fetch(:output_file, 'conftest.exe')
 
-      command_parts.compact.join(' ')
+      command_parts = shellwords(cpp_command)
+      command_parts.concat(shellwords(command_options))
+      command_parts.concat(shellwords(cpp_library_paths))
+      command_parts.concat(shellwords(cpp_libraries))
+      command_parts.concat(shellwords(cpp_defs))
+      command_parts.concat(shellwords(cpp_out_file(output_file)))
+      command_parts << source_file
+      command_parts.concat(shellwords(library_options))
+
+      command_parts
     end
 
-    def with_suppressed_output
-      stderr_orig = $stderr.dup
-      stdout_orig = $stdout.dup
-
-      $stderr.reopen(IO::NULL)
-      $stdout.reopen(IO::NULL)
-
-      yield
-    ensure
-      $stderr.reopen(stderr_orig)
-      $stdout.reopen(stdout_orig)
-      stderr_orig.close
-      stdout_orig.close
+    def shellwords(options)
+      if options.is_a?(Array)
+        options.flatten.compact.map(&:to_s)
+      else
+        Shellwords.split(options.to_s)
+      end
     end
 
     # Take an array of header file names (or convert it to an array if it's a
@@ -303,56 +291,53 @@ module Mkmf
     # The code generated is expected to print a number to STDOUT, which
     # is then grabbed and returned as an integer.
     #
-    # Note that $stderr is temporarily redirected to the null device because
-    # we don't actually care about the reason for failure, though a Ruby
-    # error is raised if the compilation step fails.
-    #
     def try_to_execute(code, command_options = nil)
       result = 0
 
-      Dir.chdir(Dir.tmpdir) do
-        File.write(cpp_source_file, code)
-        command = build_compile_command(command_options)
+      Dir.mktmpdir('mkmf-lite') do |dir|
+        source_file = File.join(dir, cpp_source_file)
+        output_file = File.join(dir, 'conftest.exe')
+        File.write(source_file, code)
+        command = build_compile_command(
+          command_options,
+          nil,
+          :source_file => source_file,
+          :output_file => output_file
+        )
 
-        compilation_successful = with_suppressed_output { system(command) }
+        _stdout, stderr, status = Open3.capture3(*command)
 
-        if compilation_successful
-          conftest = File::ALT_SEPARATOR ? 'conftest.exe' : './conftest.exe'
-
-          Open3.popen3(conftest) do |stdin, stdout, stderr|
-            stdin.close
-            stderr.close
-            output = stdout.gets
-            result = output&.chomp&.to_i || 0
-          end
+        if status.success?
+          output, = Open3.capture2(output_file)
+          result = output.chomp.to_i
         else
-          raise StandardError, "Failed to compile source code with command '#{command}':\n===\n#{code}==="
+          message = "Failed to compile source code with command '#{command.shelljoin}':\n#{stderr}===\n#{code}==="
+          raise StandardError, message
         end
       end
 
       result
-    ensure
-      FileUtils.rm_f(File.join(Dir.tmpdir, cpp_source_file))
-      FileUtils.rm_f(File.join(Dir.tmpdir, 'conftest.exe'))
     end
 
     # Create a temporary bit of C source code in the temp directory, and
     # try to compile it. If it succeeds, return true. Otherwise, return
     # false.
     #
-    # Note that $stderr is temporarily redirected to the null device because
-    # we don't actually care about the reason for failure.
-    #
     def try_to_compile(code, command_options = nil, library_options = nil)
-      Dir.chdir(Dir.tmpdir) do
-        File.write(cpp_source_file, code)
-        command = build_compile_command(command_options, library_options)
+      Dir.mktmpdir('mkmf-lite') do |dir|
+        source_file = File.join(dir, cpp_source_file)
+        output_file = File.join(dir, 'conftest.exe')
+        File.write(source_file, code)
+        command = build_compile_command(
+          command_options,
+          library_options,
+          :source_file => source_file,
+          :output_file => output_file
+        )
 
-        with_suppressed_output { system(command) }
+        _stdout, _stderr, status = Open3.capture3(*command)
+        status.success?
       end
-    ensure
-      FileUtils.rm_f(File.join(Dir.tmpdir, cpp_source_file))
-      FileUtils.rm_f(File.join(Dir.tmpdir, 'conftest.exe'))
     end
 
     # Slurp the contents of the template file for evaluation later.
