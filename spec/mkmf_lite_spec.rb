@@ -14,6 +14,10 @@ require 'tmpdir'
 RSpec.describe Mkmf::Lite do
   subject { Class.new{ |obj| obj.extend Mkmf::Lite } }
 
+  def template_source(file)
+    File.read(File.expand_path("../lib/mkmf/templates/#{file}", __dir__))
+  end
+
   let(:st_type)   { 'struct stat' }
   let(:st_member) { 'st_uid' }
   let(:st_header) { 'sys/stat.h' }
@@ -121,6 +125,23 @@ RSpec.describe Mkmf::Lite do
       expect(value).to be_a(Integer)
       expect(value).to eq(-1)
     end
+
+    example 'check_valueof returns a wider than int integer value' do
+      char_bit = subject.check_valueof('CHAR_BIT', 'limits.h')
+      ullong_size = subject.check_sizeof('unsigned long long', 'limits.h')
+      value = subject.check_valueof('ULLONG_MAX', 'limits.h')
+
+      expect(value).to be_a(Integer)
+      expect(value).to eq((1 << (ullong_size * char_bit)) - 1)
+    end
+
+    example 'check_valueof generates portable integer formatting' do
+      source = template_source('check_valueof.erb')
+
+      expect(source).to include('#include <stdint.h>', '#include <inttypes.h>')
+      expect(source).to include('PRIdMAX', 'PRIuMAX')
+      expect(source).not_to include('printf("%d')
+    end
   end
 
   context 'check_offsetof' do
@@ -148,6 +169,14 @@ RSpec.describe Mkmf::Lite do
       expect(size1).to eq(0)
       expect(size2).to be > size1
     end
+
+    example 'check_offsetof generates size_t output formatting' do
+      source = template_source('check_offsetof.erb')
+
+      expect(source).to include('printf("%zu\\n", offsetof(')
+      expect(source).not_to include('(int)(offsetof')
+      expect(source).not_to include('printf("%d')
+    end
   end
 
   context 'check_sizeof' do
@@ -173,6 +202,14 @@ RSpec.describe Mkmf::Lite do
       size = subject.check_sizeof(st_type, st_header)
       expect(size).to be_a(Integer)
       expect(size).to be > 0
+    end
+
+    example 'check_sizeof generates size_t output formatting' do
+      source = template_source('check_sizeof.erb')
+
+      expect(source).to include('printf("%zu\\n", sizeof(')
+      expect(source).not_to include('(int)(sizeof')
+      expect(source).not_to include('printf("%d')
     end
   end
 

@@ -1,104 +1,144 @@
 # Roadmap
 
-This branch focuses on making `mkmf-lite` more platform-neutral, safer to use
-inside applications, and easier to validate across Unix-like systems. The main
-goal is to avoid FreeBSD-specific special cases where a more general portability
-improvement would solve the same problem.
+This branch focuses on improving `mkmf-lite` without turning it into stdlib
+`mkmf`. The guiding rule is to add clearer extension points and better
+diagnostics while preserving the small public API that existing callers use.
 
-## 0.8.0 - Portability Foundation
+## Released
 
-Keep the public API stable and harden the existing implementation.
+### 0.8.0 - Portability Foundation
 
-* Replace hard-coded default libraries in `cpp_libraries`.
-* Stop assuming Linux-style `rt`, `dl`, `crypt`, and `m` availability.
-* Fix the clang branch that currently emits `-Lrt`, `-Ldl`, `-Lcrypt`, and
-  `-Lm`; these are library search path flags, not library link flags.
-* Prefer Ruby's `RbConfig` values where they are appropriate, and only add
-  explicit libraries when a probe requires them.
-* Use a per-probe temporary directory instead of shared `conftest.c` and
+Released 29-Jun-2026.
+
+* Removed implicit Linux-style library flags from compiler probes.
+* Replaced shell-built compiler command strings with argv-style execution.
+* Used per-probe temporary directories instead of shared `conftest.c` and
   `conftest.exe` files in `Dir.tmpdir`.
-* Avoid global `Dir.chdir` during probe compilation when practical.
-* Replace shell-built compiler command strings with argv-style execution.
-* Capture compiler diagnostics internally without emitting unwanted output.
-* Add FreeBSD CI coverage, likely through Cirrus CI or a GitHub Actions
-  FreeBSD runner.
+* Avoided global `Dir.chdir` during probe compilation.
+* Captured compiler diagnostics internally.
+* Improved support for include directories with spaces.
+* Added FreeBSD CI coverage.
 
-## 0.9.0 - API Improvements
+## 0.9.0 - C Probe Correctness
 
-Add clearer extension points while preserving the existing positional API.
+Improve the generated C probes first, keeping the Ruby API stable and avoiding
+changes that could surprise existing callers.
 
-* Add keyword options for include directories, library directories, compile
-  flags, and link flags.
-* Consider examples such as:
+### Generated C Types
 
-  ```ruby
-  have_header('foo.h', include_dirs: ['/usr/local/include'])
-  have_library(
-    'foo',
-    'foo_init',
-    headers: ['foo.h'],
-    lib_dirs: ['/usr/local/lib']
-  )
-  ```
+Improve generated C for sizes, offsets, and stricter compilers.
 
-* Add access to the last failed compile command and diagnostics.
-* Consider a small configuration API for global defaults such as compiler,
-  include paths, library paths, and extra flags.
-* Keep memoized public probes, but document when memoization applies and how
-  callers should think about process lifetime.
+Status: Done.
 
-## 1.0.0 - Stable Contract
+* [x] Print `sizeof` results using `size_t` and `%zu`.
+* [x] Print `offsetof` results using `size_t` and `%zu`.
+* [x] Avoid casting sizes and offsets down to `int`.
+* [x] Review `check_valueof` output formatting for constants wider than `int`.
+* [x] Keep return values as Ruby integers.
+
+### Function Probes
+
+Review function detection under stricter C modes.
+
+* Avoid relying on implicit declarations.
+* Avoid old-style function assumptions where practical.
+* Keep support for checking functions with and without caller-provided headers.
+* Preserve the current boolean behavior of `have_func`.
+
+### Compile-Only Probes
+
+Prefer compile-time checks where a probe only needs success or failure.
+
+* Consider compile-time assertions for struct member checks.
+* Keep generated source small and readable for diagnostics.
+* Avoid adding platform-specific C unless no portable form exists.
+
+### Diagnostics
+
+Make failed probes easier to understand without printing unexpected output.
+
+* Store the last compile command, stdout, stderr, exit status, and generated C
+  source for inspection.
+* Add a public diagnostics reader with a small stable shape.
+* Keep normal boolean probes quiet by default.
+* Improve raised errors from `check_valueof`, `check_sizeof`, and
+  `check_offsetof` with captured compiler output.
+
+### Tests
+
+Broaden tests around generated C, failure modes, and platform config.
+
+* Add specs for `sizeof` and `offsetof` values that should not be truncated.
+* Add specs for generated compiler/linker arguments.
+* Test library names with and without a leading `lib` prefix.
+* Test parallel probe invocations.
+* Add mocked `RbConfig` coverage for Linux, macOS, FreeBSD, Windows/MSVC, and
+  JRuby.
+* Add specs for captured diagnostics from failed probes.
+
+### Documentation
+
+Document the portability model and diagnostic behavior.
+
+* Explain that probes compile tiny C programs using Ruby's configured compiler.
+* Clarify how `mkmf-lite` differs from stdlib `mkmf`.
+* Add FFI-oriented examples for common Unix-like use cases.
+* Document memoization behavior and how it interacts with probe inputs.
+
+## Later
+
+### API Options
+
+Keyword arguments may be useful, but they should wait until the lower-level
+probe behavior is settled and the compatibility tradeoffs are clearer.
+
+* Add `include_dirs:` as a keyword alternative to positional include directory
+  arguments.
+* Add `lib_dirs:` for library search paths.
+* Add `cflags:` for extra compile flags.
+* Add `ldflags:` for extra link flags.
+* Keep existing positional forms compatible.
+* Make option handling consistent across `have_header`, `have_func`,
+  `have_library`, `have_struct_member`, `check_valueof`, `check_sizeof`, and
+  `check_offsetof`.
+
+Example target API:
+
+```ruby
+have_header('foo.h', include_dirs: ['/usr/local/include'])
+have_library(
+  'foo',
+  'foo_init',
+  headers: ['foo.h'],
+  lib_dirs: ['/usr/local/lib'],
+  cflags: ['-D_GNU_SOURCE']
+)
+```
+
+### Configuration
+
+Consider a small configuration API if repeated keyword arguments become noisy.
+
+* Evaluate `Mkmf::Lite.configure` for global defaults.
+* Support compiler, include directories, library directories, compile flags,
+  and link flags as possible defaults.
+* Make configuration interaction with memoized probe results explicit.
+
+### 1.0.0 - Stable Contract
 
 Finalize the behavior expected by downstream users.
 
 * Document the supported public API and compatibility expectations.
-* Remove unnecessary runtime dependencies where feasible.
 * Document compiler selection, probe memoization, error handling, and platform
   support.
 * Keep the library focused on lightweight compile/link probes rather than
   becoming a replacement for stdlib `mkmf`.
 
-## C Probe Correctness
+### Dependency Reduction
 
-These improvements can land in the earliest release where they fit cleanly.
-
-* Print `sizeof` results using `size_t` and `%zu`.
-* Print `offsetof` results with an appropriate unsigned size format.
-* Avoid casting sizes and offsets down to `int`.
-* Review function probes under stricter C modes, where implicit declarations
-  and old-style function assumptions may fail.
-* Consider compile-time assertions for probes that only need success or failure.
-
-## Dependency Reduction
-
-Reducing dependencies is useful, but should not distract from the portability
-foundation.
+Reducing dependencies is useful, but should not distract from the 0.9 API work.
 
 * Remove `ptools` if it is only needed for `File.which`.
 * Replace `File.which` with a small internal executable lookup based on
   `ENV['PATH']`.
 * Reevaluate `memoist` after the probe and command execution behavior is stable.
-
-## Test Coverage
-
-The test suite should exercise command construction and failure modes, not only
-successful local probes.
-
-* Add specs for generated compiler/linker arguments.
-* Test include and library directories containing spaces.
-* Test library names with and without a leading `lib` prefix.
-* Test parallel probe invocations to catch temporary file collisions.
-* Add mocked `RbConfig` coverage for Linux, macOS, FreeBSD, Windows/MSVC, and
-  JRuby.
-* Add a regression test proving clang does not receive bogus `-Lrt`-style
-  flags.
-
-## Documentation
-
-Documentation should make the portability model explicit.
-
-* Explain that probes compile tiny C programs using Ruby's configured compiler.
-* Clarify how `mkmf-lite` differs from stdlib `mkmf`.
-* Add FFI-oriented examples for common Unix-like use cases.
-* Document how to pass include and library paths for ports-installed libraries,
-  especially `/usr/local/include` and `/usr/local/lib` on FreeBSD.

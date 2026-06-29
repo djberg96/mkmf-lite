@@ -3,9 +3,7 @@
 
 <%= headers %>
 
-int conftest_const = (int)(offsetof(<%= struct_type %>, <%= field %>));
-
 int main(){
-  printf("%d\n", conftest_const);
+  printf("%zu\n", offsetof(<%= struct_type %>, <%= field %>));
   return 0;
 }
