@@ -1,10 +1,9 @@
 #include <stdio.h>
+#include <stddef.h>
 
 <%= headers %>
 
-int conftest_const = (int)(sizeof(<%= type %>));
-
 int main(){
-  printf("%d\n", conftest_const);
+  printf("%zu\n", sizeof(<%= type %>));
   return 0;
 }

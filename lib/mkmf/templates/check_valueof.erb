@@ -1,8 +1,15 @@
 #include <stdio.h>
+#include <stdint.h>
+#include <inttypes.h>
 
 <%= headers %>
 
 int main(){
-  printf("%d\n", <%= constant %>);
+  if ((<%= constant %>) < 0) {
+    printf("%" PRIdMAX "\n", (intmax_t)(<%= constant %>));
+  } else {
+    printf("%" PRIuMAX "\n", (uintmax_t)(<%= constant %>));
+  }
+
   return 0;
 }
