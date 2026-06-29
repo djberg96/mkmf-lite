@@ -1,4 +1,4 @@
-## 0.8.0 - ???
+## 0.8.0 - 29-Jun-2026
 * Removed implicit Linux-style library flags from compiler probes.
 * Compile probes now use argv-style command execution and per-probe temporary
   directories.
