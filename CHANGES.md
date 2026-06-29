@@ -1,3 +1,11 @@
+## 0.8.0 - 29-Jun-2026
+* Removed implicit Linux-style library flags from compiler probes.
+* Compile probes now use argv-style command execution and per-probe temporary
+  directories.
+* Improved support for include directories with spaces.
+* Added FreeBSD CI coverage.
+* Updated RuboCop configuration for current rubocop-rspec.
+
 ## 0.7.5 - 24-Dec-2025
 * Automatically include homebrew lib for have_library on Macs.
 * Modified the have_library to work with or without leading "lib".

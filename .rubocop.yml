@@ -1,11 +1,14 @@
-require: rubocop-rspec
+plugins:
+  - rubocop-rspec
 
 RSpec/MultipleExpectations:
   Max: 4
 RSpec/ContextWording:
   Enabled: false
-RSpec/FilePath:
-  SpecSuffixOnly: true
+RSpec/ExampleLength:
+  Max: 6
+RSpec/SpecFilePathFormat:
+  Enabled: false
 RSpec/InstanceVariable:
   Enabled: false
 RSpec/NamedSubject:
@@ -60,7 +63,7 @@ Metrics/CyclomaticComplexity:
   Enabled: false
 Metrics/PerceivedComplexity:
   Enabled: false
-Naming/PredicateName:
+Naming/PredicatePrefix:
   Enabled: false
 Naming/RescuedExceptionsVariableName:
   PreferredName: 'err'

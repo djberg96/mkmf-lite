@@ -9,6 +9,7 @@ require 'rubygems'
 require 'rspec'
 require 'mkmf/lite'
 require 'fileutils'
+require 'tmpdir'
 
 RSpec.describe Mkmf::Lite do
   subject { Class.new{ |obj| obj.extend Mkmf::Lite } }
@@ -20,7 +21,7 @@ RSpec.describe Mkmf::Lite do
 
   describe 'constants' do
     example 'version information' do
-      expect(described_class::MKMF_LITE_VERSION).to eq('0.7.5')
+      expect(described_class::MKMF_LITE_VERSION).to eq('0.8.0')
       expect(described_class::MKMF_LITE_VERSION).to be_frozen
     end
   end
@@ -38,6 +39,16 @@ RSpec.describe Mkmf::Lite do
     example 'have_header accepts an array of directories as a second argument' do
       expect{ subject.have_header('stdio.h', '/usr/local/include') }.not_to raise_error
       expect{ subject.have_header('stdio.h', '/usr/local/include', '/usr/include') }.not_to raise_error
+    end
+
+    example 'have_header accepts a directory with spaces' do
+      Dir.mktmpdir('mkmf lite') do |dir|
+        header = 'mkmf_lite_space_header.h'
+
+        File.write(File.join(dir, header), "#define MKMF_LITE_SPACE_HEADER 1\n")
+
+        expect(subject.have_header(header, dir)).to be(true)
+      end
     end
   end
 
@@ -192,6 +203,31 @@ RSpec.describe Mkmf::Lite do
 
     example 'have_library accepts a maximum of three arguments' do
       expect{ subject.have_library('m', 'sqrt', 'math.h', 'bogus') }.to raise_error(ArgumentError)
+    end
+  end
+
+  describe 'command construction' do
+    let(:command_with_spaces) do
+      subject.send(
+        :build_compile_command,
+        ['-I/tmp/include dir'],
+        nil,
+        :source_file => 'source.c',
+        :output_file => 'output file'
+      )
+    end
+
+    example 'build_compile_command returns argv-style command parts' do
+      expect(command_with_spaces).to include('-I/tmp/include dir')
+      expect(command_with_spaces).to include('source.c')
+      expect(command_with_spaces.any? { |part| part.include?('output file') }).to be(true)
+    end
+
+    example 'build_compile_command does not include implicit Linux libraries' do
+      command = subject.send(:build_compile_command)
+
+      expect(command).not_to include('-Lrt', '-Ldl', '-Lcrypt', '-Lm')
+      expect(command).not_to include('-lrt', '-ldl', '-lcrypt', '-lm')
     end
   end
 end
