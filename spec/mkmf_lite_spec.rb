@@ -105,6 +105,14 @@ RSpec.describe Mkmf::Lite do
       expect(subject.have_struct_member(st_type, st_member)).to be(false)
     end
 
+    example 'have_struct_member generates a compile-only member check' do
+      source = template_source('have_struct_member.erb')
+
+      expect(source).to include('(void)sizeof(((')
+      expect(source).not_to include('(char *)&')
+      expect(source).not_to include('- (char *)0')
+    end
+
     example 'have_struct_member requires at least two arguments' do
       expect{ subject.have_struct_member() }.to raise_error(ArgumentError)
       expect{ subject.have_struct_member('struct passwd') }.to raise_error(ArgumentError)

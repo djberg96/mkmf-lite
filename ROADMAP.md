@@ -49,9 +49,11 @@ Review function detection under stricter C modes.
 
 Prefer compile-time checks where a probe only needs success or failure.
 
-* Consider compile-time assertions for struct member checks.
-* Keep generated source small and readable for diagnostics.
-* Avoid adding platform-specific C unless no portable form exists.
+Status: Done.
+
+* [x] Consider compile-time assertions for struct member checks.
+* [x] Keep generated source small and readable for diagnostics.
+* [x] Avoid adding platform-specific C unless no portable form exists.
 
 ### Diagnostics
 
