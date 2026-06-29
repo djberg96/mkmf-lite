@@ -68,10 +68,10 @@ Make failed probes easier to understand without printing unexpected output.
 
 Broaden tests around generated C, failure modes, and platform config.
 
-* Add specs for `sizeof` and `offsetof` values that should not be truncated.
-* Add specs for generated compiler/linker arguments.
-* Test library names with and without a leading `lib` prefix.
-* Test parallel probe invocations.
+* [x] Add specs for `sizeof` and `offsetof` values that should not be truncated.
+* [x] Add specs for generated compiler/linker arguments.
+* [x] Test library names with and without a leading `lib` prefix.
+* [x] Test parallel probe invocations.
 * Add mocked `RbConfig` coverage for Linux, macOS, FreeBSD, Windows/MSVC, and
   JRuby.
 * Add specs for captured diagnostics from failed probes.

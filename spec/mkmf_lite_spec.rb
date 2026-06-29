@@ -14,8 +14,22 @@ require 'tmpdir'
 RSpec.describe Mkmf::Lite do
   subject { Class.new{ |obj| obj.extend Mkmf::Lite } }
 
+  def new_probe
+    Class.new{ |obj| obj.extend Mkmf::Lite }
+  end
+
   def template_source(file)
     File.read(File.expand_path("../lib/mkmf/templates/#{file}", __dir__))
+  end
+
+  def parallel_probe_result
+    probe = new_probe
+
+    [probe.have_header('stdio.h'), probe.check_sizeof('int'), probe.check_valueof('EOF')]
+  end
+
+  def compile_command_with_linker_arguments(probe)
+    probe.send(:build_compile_command, nil, ['-L/tmp/lib dir', '-lfoo'])
   end
 
   let(:st_type)   { 'struct stat' }
@@ -224,6 +238,11 @@ RSpec.describe Mkmf::Lite do
       expect(subject.have_library('nonexistent_library_xyz')).to be(false)
     end
 
+    example 'have_library accepts a leading lib prefix' do
+      expect(subject.have_library('libm')).to be(true)
+      expect(subject.have_library('libm', 'sqrt', 'math.h')).to be(true)
+    end
+
     example 'have_library with function argument returns expected boolean value' do
       expect(subject.have_library('m', 'sqrt', 'math.h')).to be(true)
       expect(subject.have_library('m', 'nonexistent_function_xyz', 'math.h')).to be(false)
@@ -265,6 +284,21 @@ RSpec.describe Mkmf::Lite do
 
       expect(command).not_to include('-Lrt', '-Ldl', '-Lcrypt', '-Lm')
       expect(command).not_to include('-lrt', '-ldl', '-lcrypt', '-lm')
+    end
+
+    example 'build_compile_command appends linker arguments' do
+      command_with_linker_arguments = compile_command_with_linker_arguments(subject)
+
+      expect(command_with_linker_arguments).to include('-L/tmp/lib dir', '-lfoo')
+      expect(command_with_linker_arguments.index('-lfoo')).to be > command_with_linker_arguments.index('conftest.c')
+    end
+  end
+
+  describe 'parallel probe invocations' do
+    example 'run independently without temporary file collisions' do
+      results = Array.new(6) { Thread.new { parallel_probe_result } }.map(&:value)
+
+      expect(results).to all(satisfy { |header, size, value| header && size.positive? && value == -1 })
     end
   end
 end
