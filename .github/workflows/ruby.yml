@@ -44,5 +44,5 @@ jobs:
           export CC=clang
           export CFLAGS="-Wno-error=unused-command-line-argument-hard-error-in-future"
           gem install bundler --no-document
-          bundle install --quiet
+          bundle install --quiet --jobs 1
           bundle exec rake
