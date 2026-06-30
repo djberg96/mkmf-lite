@@ -1,4 +1,4 @@
-## 0.8.1 - TBD
+## 0.8.1 - 30-Jun-2026
 * Improved generated C formatting for size, offset, and constant probes.
 * Simplified struct member probes to use a compile-only member check.
 * Added regression coverage for generated C, linker arguments, library names,
