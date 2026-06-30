@@ -1,3 +1,11 @@
+## 0.8.1 - TBD
+* Improved generated C formatting for size, offset, and constant probes.
+* Simplified struct member probes to use a compile-only member check.
+* Added regression coverage for generated C, linker arguments, library names,
+  and parallel probe invocations.
+* Expanded documentation for portability, diagnostics, FFI use, and
+  memoization.
+
 ## 0.8.0 - 29-Jun-2026
 * Removed implicit Linux-style library flags from compiler probes.
 * Compile probes now use argv-style command execution and per-probe temporary

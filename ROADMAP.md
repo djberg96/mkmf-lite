@@ -82,10 +82,12 @@ Broaden tests around generated C, failure modes, and platform config.
 
 Document the portability model and diagnostic behavior.
 
-* Explain that probes compile tiny C programs using Ruby's configured compiler.
-* Clarify how `mkmf-lite` differs from stdlib `mkmf`.
-* Add FFI-oriented examples for common Unix-like use cases.
-* Document memoization behavior and how it interacts with probe inputs.
+Status: Done.
+
+* [x] Explain that probes compile tiny C programs using Ruby's configured compiler.
+* [x] Clarify how `mkmf-lite` differs from stdlib `mkmf`.
+* [x] Add FFI-oriented examples for common Unix-like use cases.
+* [x] Document memoization behavior and how it interacts with probe inputs.
 
 ## Later
 
