@@ -109,6 +109,23 @@ class LocalHeader
 end
 ```
 
+## Configuration
+Use `Mkmf::Lite.configure` to set process-wide defaults that should apply to
+all probes:
+
+```ruby
+Mkmf::Lite.configure do |config|
+  config.compiler = 'clang'
+  config.include_dirs = ['/opt/local/include']
+  config.lib_dirs = ['/opt/local/lib']
+  config.cflags = ['-D_GNU_SOURCE']
+  config.ldflags = ['-Wl,-rpath,/opt/local/lib']
+end
+```
+
+The same configuration object is available from any object that extends
+`Mkmf::Lite`, so local setup code can call `configure` there as well.
+
 ## Memoization
 As of version 0.6.0, public probe results are memoized for the lifetime of the
 object that extends `Mkmf::Lite`. The method arguments are part of the cache
@@ -116,9 +133,9 @@ key, so `have_header('foo.h')` and `have_header('foo.h', '/usr/local/include')`
 are distinct checks.
 
 This fits the normal use case where compiler configuration, headers, and system
-libraries do not change while the Ruby process is running. If you need to probe
-again after changing the environment, create a new object or restart the
-process.
+libraries do not change while the Ruby process is running. Calling
+`Mkmf::Lite.configure` clears memoized probe results on objects that already
+extended `Mkmf::Lite`, so repeated checks use the updated defaults.
 
 ## Known Issues
 JRuby may emit warnings on some platforms.
