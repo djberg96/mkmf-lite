@@ -14,6 +14,16 @@ require 'tmpdir'
 RSpec.describe Mkmf::Lite do
   subject { Class.new{ |obj| obj.extend Mkmf::Lite } }
 
+  after do
+    described_class.configure do |config|
+      config.compiler = nil
+      config.include_dirs = []
+      config.lib_dirs = []
+      config.cflags = []
+      config.ldflags = []
+    end
+  end
+
   def new_probe
     Class.new{ |obj| obj.extend Mkmf::Lite }
   end
@@ -32,6 +42,57 @@ RSpec.describe Mkmf::Lite do
     probe.send(:build_compile_command, nil, ['-L/tmp/lib dir', '-lfoo'])
   end
 
+  def configured_compile_command(probe)
+    probe.send(
+      :build_compile_command,
+      nil,
+      ['-lfoo'],
+      :source_file => 'source.c',
+      :output_file => 'output file'
+    )
+  end
+
+  def configure_compiler_defaults
+    described_class.configure do |config|
+      config.compiler = 'custom-cc'
+      config.include_dirs = ['/tmp/include dir']
+      config.lib_dirs = ['/tmp/lib dir']
+      config.cflags = ['-DLOCAL_BUILD=1']
+      config.ldflags = ['-Wl,-rpath,/tmp/lib dir']
+    end
+  end
+
+  def write_configured_header(dir, header)
+    File.write(File.join(dir, header), "#define MKMF_LITE_CONFIGURED_HEADER 1\n")
+  end
+
+  def expect_configured_command_defaults(command)
+    expect(command).to include(
+      'custom-cc',
+      '-I/tmp/include dir',
+      '-L/tmp/lib dir',
+      '-DLOCAL_BUILD=1',
+      '-lfoo',
+      '-Wl,-rpath,/tmp/lib dir'
+    )
+  end
+
+  def expect_configured_command_order(command)
+    expect(command.index('-DLOCAL_BUILD=1')).to be < command.index('source.c')
+    expect(command.index('-Wl,-rpath,/tmp/lib dir')).to be > command.index('source.c')
+  end
+
+  def expect_probe_to_refresh_with_configured_header(probe)
+    header = 'mkmf_lite_configured_header.h'
+
+    Dir.mktmpdir('mkmf lite configured') do |dir|
+      write_configured_header(dir, header)
+      expect(probe.have_header(header)).to be(false)
+      described_class.configure { |config| config.include_dirs = [dir] }
+      expect(probe.have_header(header)).to be(true)
+    end
+  end
+
   let(:st_type)   { 'struct stat' }
   let(:st_member) { 'st_uid' }
   let(:st_header) { 'sys/stat.h' }
@@ -39,7 +100,7 @@ RSpec.describe Mkmf::Lite do
 
   describe 'constants' do
     example 'version information' do
-      expect(described_class::MKMF_LITE_VERSION).to eq('0.8.1')
+      expect(described_class::MKMF_LITE_VERSION).to eq('0.9.0')
       expect(described_class::MKMF_LITE_VERSION).to be_frozen
     end
   end
@@ -299,6 +360,27 @@ RSpec.describe Mkmf::Lite do
 
       expect(command_with_linker_arguments).to include('-L/tmp/lib dir', '-lfoo')
       expect(command_with_linker_arguments.index('-lfoo')).to be > command_with_linker_arguments.index('conftest.c')
+    end
+  end
+
+  describe 'configuration' do
+    example 'exposes global compiler and flag defaults' do
+      configure_compiler_defaults
+
+      command = configured_compile_command(subject)
+
+      expect_configured_command_defaults(command)
+      expect_configured_command_order(command)
+    end
+
+    example 'configuration can be set from an object that extends Mkmf::Lite' do
+      subject.configure { |config| config.cflags = '-DMKMF_LITE_CONFIGURED=1' }
+
+      expect(subject.configuration.cflags).to eq(['-DMKMF_LITE_CONFIGURED=1'])
+    end
+
+    example 'configuration changes clear memoized probe results' do
+      expect_probe_to_refresh_with_configured_header(new_probe)
     end
   end
 

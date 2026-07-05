@@ -1,3 +1,9 @@
+## 0.9.0 - 5-Jul-2026
+* Added `Mkmf::Lite.configure` for process-wide compiler, include directory,
+  library directory, compile flag, and link flag defaults.
+* Configuration changes now clear memoized probe results on existing
+  `Mkmf::Lite` extenders.
+
 ## 0.8.1 - 30-Jun-2026
 * Improved generated C formatting for size, offset, and constant probes.
 * Simplified struct member probes to use a compile-only member check.

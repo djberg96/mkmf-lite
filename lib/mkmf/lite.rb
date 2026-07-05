@@ -15,8 +15,74 @@ module Mkmf
   module Lite
     extend Memoist
 
+    # Stores process-wide defaults for compiler probe commands.
+    class Configuration
+      attr_accessor :compiler
+      attr_reader :include_dirs, :lib_dirs, :cflags, :ldflags
+
+      def initialize
+        @compiler = nil
+        @include_dirs = []
+        @lib_dirs = []
+        @cflags = []
+        @ldflags = []
+      end
+
+      def include_dirs=(dirs)
+        @include_dirs = normalize_options(dirs)
+      end
+
+      def lib_dirs=(dirs)
+        @lib_dirs = normalize_options(dirs)
+      end
+
+      def cflags=(flags)
+        @cflags = normalize_options(flags)
+      end
+
+      def ldflags=(flags)
+        @ldflags = normalize_options(flags)
+      end
+
+      private
+
+      def normalize_options(options)
+        Array(options).flatten.compact.map(&:to_s)
+      end
+    end
+
     # The version of the mkmf-lite library
-    MKMF_LITE_VERSION = '0.8.1'
+    MKMF_LITE_VERSION = '0.9.0'
+
+    class << self
+      def configuration
+        @configuration ||= Configuration.new
+      end
+
+      def configure
+        yield configuration
+        reset_memoized_results
+        configuration
+      end
+
+      def extended(object)
+        configured_objects << object
+      end
+
+      private
+
+      def configured_objects
+        @configured_objects ||= []
+      end
+
+      def reset_memoized_results
+        ([self] + configured_objects).each do |object|
+          object.instance_variables.grep(/^@_memoized_/).each do |ivar|
+            object.remove_instance_variable(ivar)
+          end
+        end
+      end
+    end
 
     private
 
@@ -38,7 +104,7 @@ module Mkmf
 
     # rubocop:disable Layout/LineLength
     def cpp_command
-      command = RbConfig::CONFIG['CC'] || RbConfig::CONFIG['CPP'] || File.which('cc') || File.which('gcc') || File.which('cl')
+      command = configuration.compiler || RbConfig::CONFIG['CC'] || RbConfig::CONFIG['CPP'] || File.which('cc') || File.which('gcc') || File.which('cl')
       raise StandardError, 'Compiler not found' unless command
 
       command
@@ -68,6 +134,8 @@ module Mkmf
     def cpp_library_paths
       paths = []
 
+      paths.concat(build_library_directory_options(configuration.lib_dirs))
+
       # Add Homebrew library paths on macOS
       if RbConfig::CONFIG['host_os'].match?(/darwin/)
         # Apple Silicon Macs
@@ -82,6 +150,14 @@ module Mkmf
     memoize :cpp_library_paths
 
     public
+
+    def configure(&block)
+      Mkmf::Lite.configure(&block)
+    end
+
+    def configuration
+      Mkmf::Lite.configuration
+    end
 
     # Check for the presence of the given +header+ file. You may optionally
     # provide a list of directories to search.
@@ -236,18 +312,34 @@ module Mkmf
       directories.flatten.map { |dir| "-I#{dir}" }
     end
 
+    def build_configured_compile_options(command_options)
+      [
+        build_directory_options(configuration.include_dirs),
+        configuration.cflags,
+        command_options
+      ].flatten.compact
+    end
+
+    def build_configured_link_options(library_options)
+      [library_options, configuration.ldflags].flatten.compact
+    end
+
+    def build_library_directory_options(directories)
+      directories.flatten.map { |dir| "-L#{dir}" }
+    end
+
     def build_compile_command(command_options = nil, library_options = nil, paths = {})
       source_file = paths.fetch(:source_file, cpp_source_file)
       output_file = paths.fetch(:output_file, 'conftest.exe')
 
       command_parts = shellwords(cpp_command)
-      command_parts.concat(shellwords(command_options))
+      command_parts.concat(shellwords(build_configured_compile_options(command_options)))
       command_parts.concat(shellwords(cpp_library_paths))
       command_parts.concat(shellwords(cpp_libraries))
       command_parts.concat(shellwords(cpp_defs))
       command_parts.concat(shellwords(cpp_out_file(output_file)))
       command_parts << source_file
-      command_parts.concat(shellwords(library_options))
+      command_parts.concat(shellwords(build_configured_link_options(library_options)))
 
       command_parts
     end

@@ -123,10 +123,12 @@ have_library(
 
 Consider a small configuration API if repeated keyword arguments become noisy.
 
-* Evaluate `Mkmf::Lite.configure` for global defaults.
-* Support compiler, include directories, library directories, compile flags,
+Status: Done.
+
+* [x] Evaluate `Mkmf::Lite.configure` for global defaults.
+* [x] Support compiler, include directories, library directories, compile flags,
   and link flags as possible defaults.
-* Make configuration interaction with memoized probe results explicit.
+* [x] Make configuration interaction with memoized probe results explicit.
 
 ### 1.0.0 - Stable Contract
 
