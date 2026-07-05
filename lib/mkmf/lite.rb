@@ -52,7 +52,7 @@ module Mkmf
     end
 
     # The version of the mkmf-lite library
-    MKMF_LITE_VERSION = '0.8.1'
+    MKMF_LITE_VERSION = '0.9.0'
 
     class << self
       def configuration

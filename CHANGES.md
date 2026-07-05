@@ -1,4 +1,4 @@
-## 0.8.2 - TBD
+## 0.9.0 - 5-Jul-2026
 * Added `Mkmf::Lite.configure` for process-wide compiler, include directory,
   library directory, compile flag, and link flag defaults.
 * Configuration changes now clear memoized probe results on existing
