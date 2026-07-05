@@ -180,6 +180,7 @@ module Mkmf
     # Returns true if found, or false if not found.
     #
     def have_func(function, headers = [])
+      headers_provided = !Array(headers).flatten.empty?
       headers = get_header_string(headers)
 
       erb_ptr = ERB.new(read_template('have_func_pointer.erb'))
@@ -188,9 +189,9 @@ module Mkmf
       ptr_code = erb_ptr.result(binding)
       std_code = erb_std.result(binding)
 
-      # Check for just the function pointer first. If that fails, then try
-      # to compile with the function declaration.
-      try_to_compile(ptr_code) || try_to_compile(std_code)
+      # Check for a header declaration first. If no headers were provided,
+      # fall back to an explicit declaration so symbol-only probes still work.
+      try_to_compile(ptr_code) || (!headers_provided && try_to_compile(std_code))
     end
 
     memoize :have_func

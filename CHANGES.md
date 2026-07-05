@@ -1,3 +1,7 @@
+## 0.9.1 - TBD
+* Updated function probes to avoid implicit declarations and old-style function
+  pointer syntax while preserving symbol-only checks.
+
 ## 0.9.0 - 5-Jul-2026
 * Added `Mkmf::Lite.configure` for process-wide compiler, include directory,
   library directory, compile flag, and link flag defaults.

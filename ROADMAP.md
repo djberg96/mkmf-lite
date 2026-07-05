@@ -40,10 +40,12 @@ Status: Done.
 
 Review function detection under stricter C modes.
 
-* Avoid relying on implicit declarations.
-* Avoid old-style function assumptions where practical.
-* Keep support for checking functions with and without caller-provided headers.
-* Preserve the current boolean behavior of `have_func`.
+Status: Done.
+
+* [x] Avoid relying on implicit declarations.
+* [x] Avoid old-style function assumptions where practical.
+* [x] Keep support for checking functions with and without caller-provided headers.
+* [x] Preserve the current boolean behavior of `have_func`.
 
 ### Compile-Only Probes
 

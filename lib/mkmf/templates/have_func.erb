@@ -1,10 +1,9 @@
 <%= headers %>
 
-int try_func(){
-  <%= function %>();
-  return 0;
-}
+extern void <%= function %>(void);
 
-int main(){
-  return 0;
+int main(void){
+  void (*volatile p)(void);
+  p = <%= function %>;
+  return p == 0;
 }

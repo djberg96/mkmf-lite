@@ -146,6 +146,22 @@ RSpec.describe Mkmf::Lite do
       expect(subject.have_func('printfx', 'stdio.h')).to be(false)
     end
 
+    example 'have_func supports symbol-only checks without caller-provided headers' do
+      skip('getpid is POSIX-specific') if File::ALT_SEPARATOR
+
+      expect(subject.have_func('getpid')).to be(true)
+    end
+
+    example 'have_func templates avoid implicit declarations and old-style prototypes' do
+      pointer_source = template_source('have_func_pointer.erb')
+      declaration_source = template_source('have_func.erb')
+
+      expect(pointer_source).to include('int main(void)', 'void (*volatile p)(void)')
+      expect(pointer_source).not_to include('(*)()', '<%= function %>();')
+      expect(declaration_source).to include('extern void <%= function %>(void)')
+      expect(declaration_source).not_to include('<%= function %>();')
+    end
+
     example 'have_func requires at least one argument' do
       expect{ subject.have_func }.to raise_error(ArgumentError)
     end
