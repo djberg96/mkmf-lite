@@ -63,10 +63,27 @@ an extension, does not write an `mkmf.log`, and keeps its API inside
 Boolean probes such as `have_header`, `have_func`, `have_library`, and
 `have_struct_member` are quiet by default and return `true` or `false`.
 
+After any probe compiles generated C, call `diagnostics` on the object that
+extends `Mkmf::Lite` to inspect the most recent compile attempt. It returns an
+object with `command`, `stdout`, `stderr`, `exit_status`, `source`, and
+`success?`.
+
 Value probes such as `check_valueof`, `check_sizeof`, and `check_offsetof`
 raise `StandardError` if their generated C cannot be compiled. The exception
-message includes the compiler command, compiler stderr, and generated source so
+message includes the compiler command, compiler output, and generated source so
 you can see what failed without hunting for a separate log file.
+
+```ruby
+class Probe
+  extend Mkmf::Lite
+
+  unless have_header('missing_header.h')
+    warn diagnostics.command.join(' ')
+    warn diagnostics.stderr
+    warn diagnostics.source
+  end
+end
+```
 
 ## FFI examples
 Use `mkmf-lite` to decide which declarations are safe to expose through FFI:

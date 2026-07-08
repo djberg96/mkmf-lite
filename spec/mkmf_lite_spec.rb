@@ -93,6 +93,31 @@ RSpec.describe Mkmf::Lite do
     end
   end
 
+  def missing_header
+    'mkmf_lite_missing_header.h'
+  end
+
+  def expect_failed_diagnostics_for(probe, source_text)
+    diagnostics = probe.diagnostics
+
+    expect(diagnostics.command).to be_a(Array)
+    expect(diagnostics.stdout).to be_a(String)
+    expect(diagnostics.stderr).to be_a(String)
+    expect(diagnostics.exit_status).to be_a(Integer)
+    expect(diagnostics.exit_status).not_to eq(0)
+    expect(diagnostics.source).to include(source_text)
+    expect(diagnostics).not_to be_success
+  end
+
+  def expect_value_probe_error(error, probe, source_text)
+    expect(error.message).to include(
+      'Failed to compile source code with command',
+      probe.diagnostics.command.shelljoin,
+      probe.diagnostics.stderr,
+      source_text
+    )
+  end
+
   let(:st_type)   { 'struct stat' }
   let(:st_member) { 'st_uid' }
   let(:st_header) { 'sys/stat.h' }
@@ -397,6 +422,34 @@ RSpec.describe Mkmf::Lite do
 
     example 'configuration changes clear memoized probe results' do
       expect_probe_to_refresh_with_configured_header(new_probe)
+    end
+  end
+
+  describe 'diagnostics' do
+    example 'starts with no diagnostics' do
+      expect(subject.diagnostics).to be_nil
+    end
+
+    example 'records failed boolean probes without printing output' do
+      probe = new_probe
+
+      expect{ expect(probe.have_header(missing_header)).to be(false) }.not_to output.to_stdout
+      expect_failed_diagnostics_for(probe, missing_header)
+    end
+
+    example 'records successful probe diagnostics' do
+      expect(subject.have_header('stdio.h')).to be(true)
+
+      expect(subject.diagnostics).to be_success
+      expect(subject.diagnostics.source).to include('stdio.h')
+    end
+
+    example 'uses captured diagnostics in value probe errors' do
+      token = 'mkmf_lite_missing_type'
+
+      expect{ subject.check_sizeof("struct #{token}") }.to raise_error(StandardError) { |error|
+        expect_value_probe_error(error, subject, token)
+      }
     end
   end
 

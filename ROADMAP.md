@@ -61,11 +61,13 @@ Status: Done.
 
 Make failed probes easier to understand without printing unexpected output.
 
-* Store the last compile command, stdout, stderr, exit status, and generated C
+Status: Done.
+
+* [x] Store the last compile command, stdout, stderr, exit status, and generated C
   source for inspection.
-* Add a public diagnostics reader with a small stable shape.
-* Keep normal boolean probes quiet by default.
-* Improve raised errors from `check_valueof`, `check_sizeof`, and
+* [x] Add a public diagnostics reader with a small stable shape.
+* [x] Keep normal boolean probes quiet by default.
+* [x] Improve raised errors from `check_valueof`, `check_sizeof`, and
   `check_offsetof` with captured compiler output.
 
 ### Tests
@@ -78,7 +80,7 @@ Broaden tests around generated C, failure modes, and platform config.
 * [x] Test parallel probe invocations.
 * Add mocked `RbConfig` coverage for Linux, macOS, FreeBSD, Windows/MSVC, and
   JRuby.
-* Add specs for captured diagnostics from failed probes.
+* [x] Add specs for captured diagnostics from failed probes.
 
 ### Documentation
 

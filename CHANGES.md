@@ -1,6 +1,9 @@
 ## 0.9.1 - TBD
 * Updated function probes to avoid implicit declarations and old-style function
   pointer syntax while preserving symbol-only checks.
+* Added a public diagnostics reader for the most recent compiler probe.
+* Improved value probe failures with captured compiler stdout, stderr, exit
+  status, command, and generated source.
 
 ## 0.9.0 - 5-Jul-2026
 * Added `Mkmf::Lite.configure` for process-wide compiler, include directory,

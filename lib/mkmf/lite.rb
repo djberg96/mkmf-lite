@@ -51,6 +51,20 @@ module Mkmf
       end
     end
 
+    # Captures the most recent compiler probe details for inspection.
+    Diagnostic = Struct.new(
+      :command,
+      :stdout,
+      :stderr,
+      :exit_status,
+      :source,
+      :keyword_init => true
+    ) do
+      def success?
+        exit_status == 0
+      end
+    end
+
     # The version of the mkmf-lite library
     MKMF_LITE_VERSION = '0.9.0'
 
@@ -157,6 +171,10 @@ module Mkmf
 
     def configuration
       Mkmf::Lite.configuration
+    end
+
+    def diagnostics
+      @diagnostics
     end
 
     # Check for the presence of the given +header+ file. You may optionally
@@ -398,14 +416,14 @@ module Mkmf
           :output_file => output_file
         )
 
-        _stdout, stderr, status = Open3.capture3(*command)
+        stdout, stderr, status = Open3.capture3(*command)
+        store_diagnostics(command, stdout, stderr, status, code)
 
         if status.success?
           output, = Open3.capture2(output_file)
           result = output.chomp.to_i
         else
-          message = "Failed to compile source code with command '#{command.shelljoin}':\n#{stderr}===\n#{code}==="
-          raise StandardError, message
+          raise StandardError, diagnostic_message
         end
       end
 
@@ -428,9 +446,31 @@ module Mkmf
           :output_file => output_file
         )
 
-        _stdout, _stderr, status = Open3.capture3(*command)
+        stdout, stderr, status = Open3.capture3(*command)
+        store_diagnostics(command, stdout, stderr, status, code)
         status.success?
       end
+    end
+
+    def store_diagnostics(command, stdout, stderr, status, source)
+      @diagnostics = Diagnostic.new(
+        :command => command.dup,
+        :stdout => stdout,
+        :stderr => stderr,
+        :exit_status => status.exitstatus,
+        :source => source
+      )
+    end
+
+    def diagnostic_message
+      [
+        "Failed to compile source code with command '#{diagnostics.command.shelljoin}':",
+        diagnostics.stderr,
+        diagnostics.stdout,
+        '===',
+        diagnostics.source,
+        '==='
+      ].reject(&:empty?).join("\n")
     end
 
     # Slurp the contents of the template file for evaluation later.
